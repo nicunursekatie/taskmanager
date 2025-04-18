@@ -16,14 +16,22 @@ export default function CaptureBar({
 }: CaptureBarProps) {
   const [text, setText] = useState('');
   const [dueDate, setDueDate] = useState<string>('');
+  const [dueTime, setDueTime] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = text.trim();
     if (!trimmed) return;
-    addTask(trimmed, dueDate || null, newParent);
+    // combine date and time if provided
+    const dateTime = dueDate
+      ? dueTime
+        ? `${dueDate}T${dueTime}`
+        : dueDate
+      : null;
+    addTask(trimmed, dateTime, newParent);
     setText('');
     setDueDate('');
+    setDueTime('');
     setNewParent('');
   };
 
@@ -40,6 +48,12 @@ export default function CaptureBar({
         type="date"
         value={dueDate}
         onChange={e => setDueDate(e.target.value)}
+        style={{ padding: 8 }}
+      />
+      <input
+        type="time"
+        value={dueTime}
+        onChange={e => setDueTime(e.target.value)}
         style={{ padding: 8 }}
       />
       <select

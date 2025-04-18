@@ -1,90 +1,112 @@
-// src/App.tsx
-import TaskList from './components/TaskList';
 
-// ... other imports
+// src/components/TaskList.tsx
+import { useState } from 'react';
+import { Task } from '../App';
 
-export default function App() {
-  // ... other code
+type TaskListProps = {
+  tasks: Task[];
+  toggleTask: (id: string) => void;
+  deleteTask: (id: string) => void;
+  updateTask: (id: string, title: string, dueDate: string | null) => void;
+};
 
-  // Today's ISO date string
-  const todayStr = new Date().toISOString().split('T')[0];
+export default function TaskList({
+  tasks,
+  toggleTask,
+  deleteTask,
+  updateTask,
+}: TaskListProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDueDate, setEditDueDate] = useState<string>('');
 
-  const overdueTasks = sortedTasks.filter(
-    t => t.dueDate && t.dueDate < todayStr
-  );
-  const todayTasks = sortedTasks.filter(
-    t => t.dueDate === todayStr
-  );
-  const upcomingTasks = sortedTasks.filter(
-    t => t.dueDate && t.dueDate > todayStr
-  );
-  const noDateTasks = sortedTasks.filter(
-    t => !t.dueDate
-  );
-
-  const updateTask = (
-    id: string,
-    title: string,
-    dueDate: string | null
-  ) => {
-    setTasks(prev =>
-      prev.map(t =>
-        t.id === id ? { ...t, title, dueDate } : t
-      )
-    );
-  };
+  // Only render top-level tasks (no parentId)
+  const topTasks = tasks.filter(t => !t.parentId);
 
   return (
     <div>
-      {/* Other components */}
+      {topTasks.map(task => (
+        <div key={task.id} style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {editingId === task.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)}
+                  style={{ flex: 1, padding: 4 }}
+                />
+                <input
+                  type="date"
+                  value={editDueDate}
+                  onChange={e => setEditDueDate(e.target.value)}
+                  style={{ padding: 4 }}
+                />
+                <button
+                  onClick={() => {
+                    updateTask(task.id, editTitle, editDueDate || null);
+                    setEditingId(null);
+                  }}
+                >
+                  Save
+                </button>
+                <button onClick={() => setEditingId(null)}>Cancel</button>
+              </>
+            ) : (
+              <span
+                onClick={() => {
+                  setEditingId(task.id);
+                  setEditTitle(task.title);
+                  setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
+                }}
+                style={{
+                  cursor: 'pointer',
+                  textDecoration:
+                    task.status === 'completed' ? 'line-through' : 'none',
+                }}
+              >
+                {task.title}
+                {task.dueDate && (
+                  <span style={{ marginLeft: 8, fontWeight: 'bold', color: '#2c3e50' }}>
+                    {new Date(task.dueDate).toLocaleDateString()}
+                  </span>
+                )}
+              </span>
+            )}
+            <button onClick={() => toggleTask(task.id)}>
+              {task.status === 'pending' ? 'Complete' : 'Undo'}
+            </button>
+            <button onClick={() => deleteTask(task.id)}>Delete</button>
+          </div>
 
-      {overdueTasks.length > 0 && (
-        <>
-          <h2 className="section-header">Overdue</h2>
-          <TaskList
-            tasks={overdueTasks}
-            toggleTask={toggleTask}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
-          />
-        </>
-      )}
-
-      {todayTasks.length > 0 && (
-        <>
-          <h2 className="section-header">Due Today</h2>
-          <TaskList
-            tasks={todayTasks}
-            toggleTask={toggleTask}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
-          />
-        </>
-      )}
-
-      {upcomingTasks.length > 0 && (
-        <>
-          <h2 className="section-header">Upcoming</h2>
-          <TaskList
-            tasks={upcomingTasks}
-            toggleTask={toggleTask}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
-          />
-        </>
-      )}
-
-      {noDateTasks.length > 0 && (
-        <>
-          <h2 className="section-header">No Date</h2>
-          <TaskList
-            tasks={noDateTasks}
-            toggleTask={toggleTask}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
-          />
-        </>
-      )}
+          {/* Render subtasks */}
+          {tasks
+            .filter(sub => sub.parentId === task.id)
+            .map(sub => (
+              <div
+                key={sub.id}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 24, marginTop: 4 }}
+              >
+                <span
+                  onClick={() => toggleTask(sub.id)}
+                  style={{
+                    cursor: 'pointer',
+                    textDecoration:
+                      sub.status === 'completed' ? 'line-through' : 'none',
+                  }}
+                >
+                  {sub.title}
+                  {sub.dueDate && (
+                    <span style={{ marginLeft: 8, fontWeight: 'bold', color: '#2c3e50' }}>
+                      {new Date(sub.dueDate).toLocaleDateString()}
+                    </span>
+                  )}
+                </span>
+                <button onClick={() => deleteTask(sub.id)}>Delete</button>
+              </div>
+            ))}
+        </div>
+      ))}
     </div>
   );
 }

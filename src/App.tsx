@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import CaptureBar from './components/CaptureBar';
 import TaskList from './components/TaskList';
 import ContextWizard from './components/ContextWizard';
@@ -40,9 +40,7 @@ function App() {
   const toggleTask = (id: string) => {
     setTasks(prev =>
       prev.map(t =>
-        t.id === id
-          ? { ...t, status: t.status === 'pending' ? 'completed' : 'pending' }
-          : t
+        t.id === id ? { ...t, status: t.status === 'pending' ? 'completed' : 'pending' } : t
       )
     );
   };
@@ -51,12 +49,25 @@ function App() {
     setTasks(prev => prev.filter(t => t.id !== id));
   };
 
+  const updateTask = (id: string, title: string, dueDate: string | null) => {
+    setTasks(prev =>
+      prev.map(t => (t.id === id ? { ...t, title, dueDate } : t))
+    );
+  };
+
+  // sort and group tasks by due date
   const sortedTasks = [...tasks].sort((a, b) => {
     if (a.dueDate === b.dueDate) return 0;
     if (a.dueDate == null) return 1;
     if (b.dueDate == null) return -1;
     return a.dueDate! < b.dueDate! ? -1 : 1;
   });
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const overdueTasks = sortedTasks.filter(t => t.dueDate && t.dueDate.split('T')[0] < todayStr);
+  const todayTasks = sortedTasks.filter(t => t.dueDate && t.dueDate.split('T')[0] === todayStr);
+  const upcomingTasks = sortedTasks.filter(t => t.dueDate && t.dueDate.split('T')[0] > todayStr);
+  const noDateTasks = sortedTasks.filter(t => !t.dueDate);
 
   const generalTasks = ['Check email', 'Drink water', 'Quick stretch'];
 
@@ -81,11 +92,30 @@ function App() {
           generalTasks={generalTasks}
         />
       )}
-      <TaskList
-        tasks={sortedTasks}
-        toggleTask={toggleTask}
-        deleteTask={deleteTask}
-      />
+      {overdueTasks.length > 0 && (
+        <>
+          <h2 className="section-header">Overdue</h2>
+          <TaskList tasks={overdueTasks} toggleTask={toggleTask} deleteTask={deleteTask} updateTask={updateTask} />
+        </>
+      )}
+      {todayTasks.length > 0 && (
+        <>
+          <h2 className="section-header">Due Today</h2>
+          <TaskList tasks={todayTasks} toggleTask={toggleTask} deleteTask={deleteTask} updateTask={updateTask} />
+        </>
+      )}
+      {upcomingTasks.length > 0 && (
+        <>
+          <h2 className="section-header">Upcoming</h2>
+          <TaskList tasks={upcomingTasks} toggleTask={toggleTask} deleteTask={deleteTask} updateTask={updateTask} />
+        </>
+      )}
+      {noDateTasks.length > 0 && (
+        <>
+          <h2 className="section-header">No Date</h2>
+          <TaskList tasks={noDateTasks} toggleTask={toggleTask} deleteTask={deleteTask} updateTask={updateTask} />
+        </>
+      )}
     </div>
   );
 }
