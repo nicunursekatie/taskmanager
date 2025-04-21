@@ -9,8 +9,8 @@ type TaskListProps = {
   updateTask: (
     id: string, 
     title: string, 
-    dueDate: string | null, 
-    categories?: string[], 
+    dueDate: string | null,
+    categories?: string[],
     projectId?: string | null
   ) => void;
   categories: Category[];
@@ -28,6 +28,7 @@ export default function TaskList({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDueDate, setEditDueDate] = useState<string>('');
+  const [editCategories, setEditCategories] = useState<string[]>([]);
 
   // Only render top-level tasks (no parentId)
   const topTasks = tasks.filter(t => !t.parentId);
@@ -69,9 +70,36 @@ export default function TaskList({
                     border: '1px solid var(--border-color)'
                   }}
                 />
+                
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                    {categories.map(category => (
+                      <div
+                        key={category.id}
+                        onClick={() => {
+                          if (editCategories.includes(category.id)) {
+                            setEditCategories(editCategories.filter(id => id !== category.id));
+                          } else {
+                            setEditCategories([...editCategories, category.id]);
+                          }
+                        }}
+                        style={{
+                          backgroundColor: editCategories.includes(category.id) ? category.color : '#f0f0f0',
+                          color: editCategories.includes(category.id) ? '#fff' : '#333',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {category.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
                 <button
                   onClick={() => {
-                    updateTask(task.id, editTitle, editDueDate || null, task.categories, task.projectId);
+                    updateTask(task.id, editTitle, editDueDate || null, editCategories, task.projectId);
                     setEditingId(null);
                   }}
                   style={{
@@ -99,6 +127,7 @@ export default function TaskList({
                   setEditingId(task.id);
                   setEditTitle(task.title);
                   setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
+                  setEditCategories(task.categories || []);
                 }}
                 style={{
                   cursor: 'pointer',
@@ -115,6 +144,30 @@ export default function TaskList({
                 )}
               </span>
             )}
+            
+            {/* Display categories */}
+            {!editingId && task.categories && task.categories.length > 0 && (
+              <div style={{ display: 'flex', marginTop: '4px', flexWrap: 'wrap', gap: '4px' }}>
+                {task.categories.map(categoryId => {
+                  const category = categories.find(c => c.id === categoryId);
+                  return category ? (
+                    <span
+                      key={categoryId}
+                      style={{
+                        backgroundColor: category.color,
+                        color: '#fff',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem'
+                      }}
+                    >
+                      {category.name}
+                    </span>
+                  ) : null;
+                })}
+              </div>
+            )}
+            
             <button 
               onClick={() => toggleTask(task.id)}
               style={{

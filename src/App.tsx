@@ -62,24 +62,24 @@ function App() {
   };
 
   // In App.tsx, update the updateTask function
-const updateTask = (
-  id: string, 
-  title: string, 
-  dueDate: string | null, 
-  categories?: string[], 
-  projectId?: string | null
-) => {
-  setTasks(prev =>
-    prev.map(t => (t.id === id ? { 
-      ...t, 
-      title, 
-      dueDate,
-      categories: categories || t.categories,
-      projectId: projectId !== undefined ? projectId : t.projectId
-    } : t))
-  );
-};
-
+  const updateTask = (
+    id: string, 
+    title: string, 
+    dueDate: string | null, 
+    categories?: string[], 
+    projectId?: string | null
+  ) => {
+    setTasks(prev =>
+      prev.map(t => (t.id === id ? { 
+        ...t, 
+        title, 
+        dueDate,
+        categories: categories || t.categories,
+        projectId: projectId !== undefined ? projectId : t.projectId
+      } : t))
+    );
+  };
+  
   // sort and group tasks by due date
   const sortedTasks = [...tasks].sort((a, b) => {
     if (a.dueDate === b.dueDate) return 0;
