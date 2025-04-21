@@ -113,6 +113,7 @@ function App() {
             deleteTask={deleteTask} 
             updateTask={updateTask} 
             categories={categories}
+            projects={projects}
           />
         </>
       )}
@@ -125,6 +126,7 @@ function App() {
             deleteTask={deleteTask} 
             updateTask={updateTask} 
             categories={categories}
+            projects={projects}
           />
         </>
       )}
@@ -137,6 +139,7 @@ function App() {
             deleteTask={deleteTask} 
             updateTask={updateTask} 
             categories={categories}
+            projects={projects}
           />
         </>
       )}
@@ -149,6 +152,7 @@ function App() {
             deleteTask={deleteTask} 
             updateTask={updateTask} 
             categories={categories}
+            projects={projects}
           />
         </>
       )}

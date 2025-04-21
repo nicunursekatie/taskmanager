@@ -1,6 +1,6 @@
 // src/components/TaskList.tsx
 import { useState } from 'react';
-import { Task, Category } from '../types';
+import { Task, Category, Project } from '../types';
 
 type TaskListProps = {
   tasks: Task[];
@@ -8,6 +8,7 @@ type TaskListProps = {
   deleteTask: (id: string) => void;
   updateTask: (id: string, title: string, dueDate: string | null) => void;
   categories: Category[];
+  projects: Project[];
 };
 
 export default function TaskList({
@@ -16,17 +17,7 @@ export default function TaskList({
   deleteTask,
   updateTask,
   categories,
-  projects, // Add this parameter
-}: TaskListProps) {
-  // Your component code...
-}
-
-export default function TaskList({
-  tasks,
-  toggleTask,
-  deleteTask,
-  updateTask,
-  categories,
+  projects,
 }: TaskListProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
