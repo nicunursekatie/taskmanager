@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { Task } from '../App';
+import type { Task } from '../types';
 
 type CalendarViewProps = {
   tasks: Task[];

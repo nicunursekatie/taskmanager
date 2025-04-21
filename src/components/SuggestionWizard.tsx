@@ -5,7 +5,7 @@ type SuggestionWizardProps = {
   tasks: Task[];
   generalTasks: string[];
   extraSuggestions?: string[];
-  addTask: (title: string, dueDate: string | null, parentId?: string, category?: Task['category']) => void;
+  addTask: (title: string, dueDate: string | null, parentId?: string, categories?: string[]) => void;
   onClose: () => void;
 };
 
@@ -174,7 +174,7 @@ export default function SuggestionWizard({
                       textAlign: 'left',
                     }}
                     onClick={() => {
-                      addTask(title, null, undefined, selectedCategory as Task['category']);
+                      addTask(title, null, undefined, selectedCategory ? [selectedCategory] : undefined);
                       onClose();
                     }}
                   >

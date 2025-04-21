@@ -33,18 +33,21 @@ export type FilterPanelProps = {
   clearFilters: () => void;
 };
 
-type CaptureBarProps = {
+export type CaptureBarProps = {
   addTask: (
     title: string,
     dueDate: string | null,
     parentId?: string,
-    categoryIds?: string[]
+    categoryIds?: string[],      // now supports your array of categories
+    projectId?: string | null    // now supports the project you pick
   ) => void;
-  newParent: string;
-  setNewParent: (id: string) => void;
-  parentOptions: { id: string; title: string }[];
-};
-
+     newParent: string;
+     setNewParent: (id: string) => void;
+     parentOptions: { id: string; title: string }[];
+     categories: Category[];
+     projects: Project[];
+   };
+  
 export type TaskListProps = {
   tasks: Task[];
   toggleTask: (id: string) => void;

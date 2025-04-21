@@ -1,16 +1,20 @@
 // src/components/CaptureBar.tsx
 import React, { useState } from 'react';
+import { Category, Project } from '../types';
 
-export type CaptureBarProps = {
+type CaptureBarProps = {
   addTask: (
     title: string,
     dueDate: string | null,
     parentId?: string,
-    category?: string
+    categoryIds?: string[],
+    projectId?: string | null
   ) => void;
   newParent: string;
   setNewParent: (id: string) => void;
   parentOptions: { id: string; title: string }[];
+  categories: Category[];
+  projects: Project[];
 };
 
 export default function CaptureBar({
@@ -18,19 +22,16 @@ export default function CaptureBar({
   newParent,
   setNewParent,
   parentOptions,
+  categories,
+  projects
 }: CaptureBarProps) {
-  // Predefined category list
-  const [categories] = useState<{ id: string; name: string }[]>([
-    { id: '1', name: 'Work' },
-    { id: '2', name: 'Personal' },
-    { id: '3', name: 'Other' },
-  ]);
-
   // Local state for form fields
   const [text, setText] = useState<string>('');
   const [dueDate, setDueDate] = useState<string>('');
   const [dueTime, setDueTime] = useState<string>('');
-  const [category, setCategory] = useState<string>(categories[0].id);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [showAdditionalOptions, setShowAdditionalOptions] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,97 +42,123 @@ export default function CaptureBar({
     const dateTime = dueDate
       ? dueTime
         ? `${dueDate}T${dueTime}`
-        : dueDate
+        : `${dueDate}T00:00:00`
       : null;
 
-    // Invoke callback with category
-    addTask(trimmed, dateTime, newParent);
+    // Add the task
+    addTask(
+      trimmed,
+      dateTime,
+      newParent,
+      selectedCategories.length > 0 ? selectedCategories : undefined,  // <-- array of IDs
+      /* (optional) projectId here if you added it */
+    );
+    
 
     // Reset form fields
     setText('');
     setDueDate('');
     setDueTime('');
     setNewParent('');
-    setCategory(categories[0].id);
-  };
-
-  const formStyle: React.CSSProperties = {
-    display: 'flex',
-    gap: 8,
-    background: 'var(--section-bg)',
-    padding: 10,
-    borderRadius: '8px',
-  };
-
-  const inputStyle: React.CSSProperties = {
-    padding: 8,
-    backgroundColor: 'var(--card-bg)',
-    color: 'var(--text-color)',
-    border: '1px solid var(--border-color)',
-    borderRadius: '4px',
-  };
-
-  const selectStyle = inputStyle;
-  const buttonStyle: React.CSSProperties = {
-    padding: '8px 12px',
-    backgroundColor: 'var(--button-bg)',
-    color: 'var(--text-color)',
-    border: '1px solid var(--border-color)',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    setSelectedCategories([]);
+    setProjectId(null);
   };
 
   return (
-    <form onSubmit={handleSubmit} style={formStyle}>
-      <input
-        type="text"
-        placeholder="Quick capture..."
-        value={text}
-        onChange={e => setText(e.target.value)}
-        style={{ ...inputStyle, flex: 1 }}
-      />
-
-      <input
-        type="date"
-        value={dueDate}
-        onChange={e => setDueDate(e.target.value)}
-        style={inputStyle}
-      />
-
-      <input
-        type="time"
-        value={dueTime}
-        onChange={e => setDueTime(e.target.value)}
-        style={inputStyle}
-      />
-
-      <select
-        value={newParent}
-        onChange={e => setNewParent(e.target.value)}
-        style={selectStyle}
-      >
-        {parentOptions.map(o => (
-          <option key={o.id} value={o.id}>
-            {o.title}
-          </option>
-        ))}
-      </select>
-
-      <select
-        value={category}
-        onChange={e => setCategory(e.target.value)}
-        style={selectStyle}
-      >
-        {categories.map(cat => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
-      </select>
-
-      <button type="submit" style={buttonStyle}>
-        Add
-      </button>
-    </form>
+    <div className="capture-bar">
+      <form className="capture-form" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Quick capture..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+        />
+        
+        <input
+          type="date"
+          className="form-control"
+          value={dueDate}
+          onChange={e => setDueDate(e.target.value)}
+        />
+        
+        <input
+          type="time"
+          className="form-control"
+          value={dueTime}
+          onChange={e => setDueTime(e.target.value)}
+        />
+        
+        <button type="submit" className="btn btn-primary">Add</button>
+      </form>
+      
+      {showAdditionalOptions ? (
+        <div className="additional-options">
+          <select
+            className="form-control"
+            value={newParent}
+            onChange={e => setNewParent(e.target.value)}
+          >
+            <option value="">No Parent Task</option>
+            {parentOptions.map(o => (
+              <option key={o.id} value={o.id}>
+                {o.title}
+              </option>
+            ))}
+          </select>
+          
+          <select
+            className="form-control"
+            value={projectId || ''}
+            onChange={e => setProjectId(e.target.value || null)}
+          >
+            <option value="">No Project</option>
+            {projects.map(project => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+          
+          <div className="category-selector">
+            <label className="form-label">Categories</label>
+            <div className="category-options flex flex-wrap gap-xs">
+              {categories.map(category => (
+                <div
+                  key={category.id}
+                  className={`category-option ${selectedCategories.includes(category.id) ? 'selected' : ''}`}
+                  style={{
+                    backgroundColor: selectedCategories.includes(category.id) ? category.color : 'transparent',
+                    border: `1px solid ${category.color}`,
+                    color: selectedCategories.includes(category.id) ? 'white' : category.color,
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    margin: '2px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    if (selectedCategories.includes(category.id)) {
+                      setSelectedCategories(selectedCategories.filter(id => id !== category.id));
+                    } else {
+                      setSelectedCategories([...selectedCategories, category.id]);
+                    }
+                  }}
+                >
+                  {category.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <button 
+          className="btn btn-sm btn-outline mt-sm" 
+          onClick={() => setShowAdditionalOptions(true)}
+          type="button"
+        >
+          Show more options
+        </button>
+      )}
+    </div>
   );
 }
