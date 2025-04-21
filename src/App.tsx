@@ -4,6 +4,7 @@ import './app-styles.css';
 import CaptureBar from './components/CaptureBar';
 import TaskList from './components/TaskList';
 import ContextWizard from './components/ContextWizard';
+import CategoryManager from './components/CategoryManager';
 import { Task, Category, Project } from './types';
 
 function App() {
@@ -21,18 +22,35 @@ function App() {
   // State for parent task selection
   const [newParent, setNewParent] = useState<string>('');
   
-  // State for showing the context wizard
+  // State for showing the context wizard and category manager
   const [showWizard, setShowWizard] = useState(false);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
   
   // Example initial categories
-  const [categories, setCategories] = useState<Category[]>([
-    { id: '1', name: 'Work', color: '#F59E0B' },
-    { id: '2', name: 'Personal', color: '#10B981' },
-    { id: '3', name: 'Other', color: '#3B82F6' },
-  ]);
+  const [categories, setCategories] = useState<Category[]>(() => {
+    const savedCategories = localStorage.getItem('categories');
+    return savedCategories ? JSON.parse(savedCategories) : [
+      { id: '1', name: 'Work', color: '#F59E0B' },
+      { id: '2', name: 'Personal', color: '#10B981' },
+      { id: '3', name: 'Other', color: '#3B82F6' },
+    ];
+  });
+
+  // Save categories to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('categories', JSON.stringify(categories));
+  }, [categories]);
   
   // Projects state
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const savedProjects = localStorage.getItem('projects');
+    return savedProjects ? JSON.parse(savedProjects) : [];
+  });
+
+  // Save projects to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('projects', JSON.stringify(projects));
+  }, [projects]);
   
   // Add new task
   const addTask = (
@@ -100,6 +118,38 @@ function App() {
     const newProject: Project = { id, name, description: description || '' };
     setProjects(prev => [...prev, newProject]);
   };
+
+  // Add a new category
+  const addCategory = (category: Omit<Category, 'id'>) => {
+    const id = Date.now().toString();
+    const newCategory: Category = { id, ...category };
+    setCategories(prev => [...prev, newCategory]);
+  };
+
+  // Update a category
+  const updateCategory = (id: string, category: Omit<Category, 'id'>) => {
+    setCategories(prev =>
+      prev.map(cat =>
+        cat.id === id
+          ? { ...cat, ...category }
+          : cat
+      )
+    );
+  };
+
+  // Delete a category
+  const deleteCategory = (id: string) => {
+    // Remove the category from all tasks
+    setTasks(prev =>
+      prev.map(task => ({
+        ...task,
+        categories: task.categories ? task.categories.filter(catId => catId !== id) : []
+      }))
+    );
+    
+    // Remove the category itself
+    setCategories(prev => prev.filter(cat => cat.id !== id));
+  };
   
   // Filter tasks by due date for different sections
   const now = new Date();
@@ -161,7 +211,7 @@ function App() {
               <button className="btn btn-primary" onClick={() => setShowWizard(true)}>
                 What should I do now?
               </button>
-              <button className="btn btn-outline">
+              <button className="btn btn-outline" onClick={() => setShowCategoryManager(true)}>
                 Manage Categories
               </button>
             </div>
@@ -169,18 +219,28 @@ function App() {
           
           {/* Capture Bar */}
           <div className="capture-bar">
-            <form className="capture-form">
+            <form className="capture-form" onSubmit={(e) => {
+              e.preventDefault();
+              const titleInput = e.currentTarget.querySelector('input[type="text"]') as HTMLInputElement;
+              const dateInput = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
+              const timeInput = e.currentTarget.querySelector('input[type="time"]') as HTMLInputElement;
+              
+              if (titleInput && titleInput.value.trim()) {
+                const title = titleInput.value.trim();
+                const dueDate = dateInput && dateInput.value 
+                  ? `${dateInput.value}T${timeInput?.value || '00:00:00'}` 
+                  : null;
+                
+                addTask(title, dueDate);
+                titleInput.value = '';
+                if (dateInput) dateInput.value = '';
+                if (timeInput) timeInput.value = '';
+              }
+            }}>
               <input 
                 type="text" 
                 className="form-control" 
                 placeholder="Quick capture..."
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                    addTask(e.currentTarget.value.trim(), null);
-                    e.currentTarget.value = '';
-                    e.preventDefault();
-                  }
-                }}
               />
               <input 
                 type="date" 
@@ -283,6 +343,17 @@ function App() {
           tasks={tasks}
           onClose={() => setShowWizard(false)}
           generalTasks={generalTasks}
+        />
+      )}
+
+      {/* Category Manager Modal */}
+      {showCategoryManager && (
+        <CategoryManager
+          categories={categories}
+          addCategory={addCategory}
+          updateCategory={updateCategory}
+          deleteCategory={deleteCategory}
+          onClose={() => setShowCategoryManager(false)}
         />
       )}
     </div>
