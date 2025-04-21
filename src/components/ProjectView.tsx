@@ -1,4 +1,4 @@
-import { Task } from '../App';
+import { Task } from "../types";
 import { Project, Category } from '../types';
 import TaskList from './TaskList';
 
