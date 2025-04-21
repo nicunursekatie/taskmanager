@@ -1,5 +1,6 @@
-import { Task } from "../types";
-import { Project, Category } from '../types';
+// src/components/ProjectView.tsx
+import React from 'react';
+import { Task, Project, Category } from '../types';
 import TaskList from './TaskList';
 
 type ProjectViewProps = {
@@ -27,7 +28,7 @@ export default function ProjectView({
 }: ProjectViewProps) {
   if (projects.length === 0) {
     return (
-      <div className="no-projects-message">
+      <div className="empty-state">
         <p>No projects created yet. Create a project to organize related tasks together.</p>
       </div>
     );
@@ -36,24 +37,57 @@ export default function ProjectView({
   return (
     <div className="project-view">
       {projects.map(project => {
+        // Filter tasks for this project
         const projectTasks = tasks.filter(task => task.projectId === project.id);
         
+        // Further filter by status
+        const pendingTasks = projectTasks.filter(task => task.status === 'pending');
+        const completedTasks = projectTasks.filter(task => task.status === 'completed');
+        
         return (
-          <div key={project.id} className="project-section">
-            <h2 className="project-title">{project.name}</h2>
-            {project.description && <p className="project-description">{project.description}</p>}
+          <div key={project.id} className="item-card mb-lg">
+            <div className="item-header">
+              <h2 className="section-title mt-0">{project.name}</h2>
+            </div>
+            
+            {project.description && (
+              <p className="item-description mb-md">{project.description}</p>
+            )}
             
             {projectTasks.length > 0 ? (
-              <TaskList 
-                tasks={projectTasks} 
-                toggleTask={toggleTask} 
-                deleteTask={deleteTask} 
-                updateTask={updateTask} 
-                categories={categories}
-                projects={projects}
-              />
+              <>
+                {pendingTasks.length > 0 && (
+                  <div className="mb-md">
+                    <h3 className="font-lg mb-sm">Pending</h3>
+                    <TaskList 
+                      tasks={pendingTasks} 
+                      toggleTask={toggleTask} 
+                      deleteTask={deleteTask} 
+                      updateTask={updateTask} 
+                      categories={categories}
+                      projects={projects}
+                    />
+                  </div>
+                )}
+                
+                {completedTasks.length > 0 && (
+                  <div>
+                    <h3 className="font-lg mb-sm">Completed</h3>
+                    <TaskList 
+                      tasks={completedTasks} 
+                      toggleTask={toggleTask} 
+                      deleteTask={deleteTask} 
+                      updateTask={updateTask} 
+                      categories={categories}
+                      projects={projects}
+                    />
+                  </div>
+                )}
+              </>
             ) : (
-              <p className="no-tasks-message">No tasks in this project yet.</p>
+              <div className="text-center text-light py-md">
+                No tasks in this project yet.
+              </div>
             )}
           </div>
         );

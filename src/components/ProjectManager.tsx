@@ -1,3 +1,4 @@
+// src/components/ProjectManager.tsx
 import React, { useState } from 'react';
 import { Project } from '../types';
 
@@ -53,59 +54,107 @@ export default function ProjectManager({
   };
 
   return (
-    <div className="overlay">
+    <div className="modal-overlay">
       <div className="modal">
-        <h2>Manage Projects</h2>
-        
-        <form onSubmit={handleAddProject} className="add-form">
-          <input
-            type="text"
-            placeholder="New project name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-          <textarea
-            placeholder="Project description"
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-          />
-          <button type="submit">Add Project</button>
-        </form>
-        
-        <div className="project-list">
-          {projects.map((project) => (
-            <div key={project.id} className="project-item">
-              {editId === project.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                  />
-                  <textarea
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                  />
-                  <button onClick={handleUpdateProject}>Save</button>
-                  <button onClick={() => setEditId(null)}>Cancel</button>
-                </>
-              ) : (
-                <>
-                  <h3 className="project-name">{project.name}</h3>
-                  {project.description && (
-                    <p className="project-description">{project.description}</p>
-                  )}
-                  <div className="actions">
-                    <button onClick={() => startEditing(project)}>Edit</button>
-                    <button onClick={() => deleteProject(project.id)}>Delete</button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
+        <div className="modal-header">
+          <h2 className="modal-title">Manage Projects</h2>
+          <button className="btn btn-sm btn-outline" onClick={onClose}>×</button>
         </div>
         
-        <button className="close-btn" onClick={onClose}>Close</button>
+        <div className="modal-body">
+          <form onSubmit={handleAddProject} className="input-group">
+            <label className="form-label">Add New Project</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Project name"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+            />
+            <textarea
+              className="form-control mt-sm"
+              placeholder="Project description (optional)"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              rows={3}
+            />
+            <button type="submit" className="btn btn-primary mt-sm">Add Project</button>
+          </form>
+          
+          <h3 className="section-title mt-lg">Your Projects</h3>
+          
+          <div className="item-list">
+            {projects.map((project) => (
+              <div key={project.id} className="item-card">
+                {editId === project.id ? (
+                  <div className="task-edit-form">
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      placeholder="Project name"
+                    />
+                    <textarea
+                      className="form-control mt-sm"
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      placeholder="Project description (optional)"
+                      rows={3}
+                    />
+                    <div className="flex gap-sm mt-sm">
+                      <button 
+                        className="btn btn-primary"
+                        onClick={handleUpdateProject}
+                      >
+                        Save
+                      </button>
+                      <button 
+                        className="btn btn-outline"
+                        onClick={() => setEditId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="item-header">
+                      <h3 className="item-title">{project.name}</h3>
+                      <div className="flex gap-sm">
+                        <button 
+                          className="btn btn-sm btn-outline"
+                          onClick={() => startEditing(project)}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="btn btn-sm btn-danger"
+                          onClick={() => deleteProject(project.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    {project.description && (
+                      <p className="item-description mt-sm">{project.description}</p>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
+            
+            {projects.length === 0 && (
+              <div className="text-center text-light mt-lg">
+                No projects yet. Add one above to get started.
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="modal-footer">
+          <button className="btn btn-outline" onClick={onClose}>Close</button>
+        </div>
       </div>
     </div>
   );
