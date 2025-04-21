@@ -6,7 +6,13 @@ type TaskListProps = {
   tasks: Task[];
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
-  updateTask: (id: string, title: string, dueDate: string | null) => void;
+  updateTask: (
+    id: string, 
+    title: string, 
+    dueDate: string | null, 
+    categories?: string[], 
+    projectId?: string | null
+  ) => void;
   categories: Category[];
   projects: Project[];
 };
@@ -65,7 +71,7 @@ export default function TaskList({
                 />
                 <button
                   onClick={() => {
-                    updateTask(task.id, editTitle, editDueDate || null);
+                    updateTask(task.id, editTitle, editDueDate || null, task.categories, task.projectId);
                     setEditingId(null);
                   }}
                   style={{
