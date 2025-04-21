@@ -1,4 +1,3 @@
-import React from 'react';
 import { Category, Project } from '../types';
 
 type FilterPanelProps = {
