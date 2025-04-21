@@ -44,11 +44,11 @@ export default function ProjectView({
             {project.description && <p className="project-description">{project.description}</p>}
             
             {projectTasks.length > 0 ? (
-              <TaskList
-                tasks={projectTasks}
-                toggleTask={toggleTask}
-                deleteTask={deleteTask}
-                updateTask={updateTask}
+              <TaskList 
+                tasks={projectTasks} 
+                toggleTask={toggleTask} 
+                deleteTask={deleteTask} 
+                updateTask={updateTask} 
                 categories={categories}
                 projects={projects}
               />

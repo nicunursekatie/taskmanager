@@ -38,7 +38,7 @@ export default function ProjectManager({
   const startEditing = (project: Project) => {
     setEditId(project.id);
     setEditName(project.name);
-    setEditDescription(project.description);
+    setEditDescription(project.description || '');
   };
 
   const handleUpdateProject = () => {

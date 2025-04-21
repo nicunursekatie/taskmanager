@@ -79,7 +79,7 @@ function App() {
       } : t))
     );
   };
-  
+
   // sort and group tasks by due date
   const sortedTasks = [...tasks].sort((a, b) => {
     if (a.dueDate === b.dueDate) return 0;
