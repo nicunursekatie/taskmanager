@@ -20,7 +20,7 @@ export type Task = {
   status: 'pending' | 'completed';
   parentId?: string;
   projectId?: string | null;
-  category?: string;
+  categories?: string[];  // Add this field back
 };
 
 export type FilterPanelProps = {
@@ -44,7 +44,13 @@ export type TaskListProps = {
   tasks: Task[];
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
-  updateTask: (id: string, title: string, dueDate: string | null) => void;
+  updateTask: (
+    id: string, 
+    title: string, 
+    dueDate: string | null,
+    categories?: string[],
+    projectId?: string | null
+  ) => void;
   categories: Category[];
   projects: Project[];
 };
