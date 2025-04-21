@@ -33,8 +33,13 @@ export type FilterPanelProps = {
   clearFilters: () => void;
 };
 
-export type CaptureBarProps = {
-  addTask: (title: string, dueDate: string | null, parentId?: string) => void;
+type CaptureBarProps = {
+  addTask: (
+    title: string,
+    dueDate: string | null,
+    parentId?: string,
+    categoryIds?: string[]
+  ) => void;
   newParent: string;
   setNewParent: (id: string) => void;
   parentOptions: { id: string; title: string }[];

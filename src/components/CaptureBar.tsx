@@ -45,7 +45,7 @@ export default function CaptureBar({
       : null;
 
     // Invoke callback with category
-    addTask(trimmed, dateTime, newParent, category);
+    addTask(trimmed, dateTime, newParent);
 
     // Reset form fields
     setText('');
