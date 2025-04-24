@@ -1,0 +1,196 @@
+/* src/styles/project-dashboard.css */
+.project-dashboard {
+    margin-top: 2rem;
+  }
+  
+  .project-panel {
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius-lg);
+    background-color: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  
+  .project-panel:hover {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: var(--section-bg);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .project-header:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+  }
+  
+  .project-name {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-color);
+  }
+  
+  .project-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .task-count {
+    font-size: var(--font-size-sm);
+    color: var(--text-light);
+    background-color: rgba(var(--text-color-rgb), 0.05);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+  }
+  
+  .expand-icon {
+    font-size: var(--font-size-md);
+    color: var(--text-light);
+    transition: transform 0.2s ease;
+  }
+  
+  .project-content {
+    padding: 1.5rem;
+    background-color: var(--card-bg);
+  }
+  
+  .project-description {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    font-size: var(--font-size-md);
+    line-height: 1.6;
+  }
+  
+  .task-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .task-section:last-child {
+    margin-bottom: 0;
+  }
+  
+  .task-section-title {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .no-tasks-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+    font-style: italic;
+  }
+  
+  /* Enhanced Task Item Styles */
+  .task-item {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+    border-left: 3px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .task-item.completed {
+    border-left-color: var(--success-color);
+    opacity: 0.8;
+  }
+  
+  .task-item.overdue {
+    border-left-color: var(--danger-color);
+  }
+  
+  .task-item.today {
+    border-left-color: var(--warning-color);
+  }
+  
+  /* Custom theme variables for better color contrast */
+  :root {
+    --primary-color-rgb: 67, 97, 238;
+    --text-color-rgb: 51, 51, 51;
+    
+    /* Light theme enhancements */
+    --primary-color: #4361ee;
+    --primary-light: #4895ef;
+    --primary-dark: #3a0ca3;
+    --accent-color: #f72585;
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    
+    --text-color: #333333;
+    --text-light: #666666;
+    --card-bg: #ffffff;
+    --background-color: #f5f7fa;
+    --border-color: #e0e0e0;
+    --section-bg: #f8f9fa;
+  }
+  
+  /* Dark theme enhancements */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary-color-rgb: 72, 149, 239;
+      --text-color-rgb: 255, 255, 255;
+      
+      --primary-color: #4895ef;
+      --primary-light: #4cc9f0;
+      --primary-dark: #3a0ca3;
+      --accent-color: #f72585;
+      
+      --text-color: rgba(255, 255, 255, 0.9);
+      --text-light: rgba(255, 255, 255, 0.6);
+      --card-bg: #2a2d3e;
+      --background-color: #1a1c25;
+      --border-color: #3a3f55;
+      --section-bg: #252836;
+    }
+  }
+  /* Preserve grid layout with subtasks */
+.task-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-md);
+  }
+  
+  /* Make sure task items in grid have consistent height */
+  .task-grid .task-item {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Adjust subtasks to fit within the grid layout */
+  .task-grid .subtasks {
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+    padding-top: var(--space-sm);
+  }
+  
+  .task-grid .subtask-item {
+    margin-left: var(--space-sm);
+    border-left: 2px dashed var(--border-color);
+    padding-left: var(--space-sm);
+  }

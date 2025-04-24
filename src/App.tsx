@@ -1,12 +1,13 @@
-// src/App.tsx
+// Modified App.tsx to use ProjectDashboard
 import React, { useState, useEffect } from 'react';
 import './app-styles.css';
+import './styles/project-dashboard.css'; // Import new styles
 import CaptureBar from './components/CaptureBar';
 import TaskList from './components/TaskList';
 import ContextWizard from './components/ContextWizard';
 import CategoryManager from './components/CategoryManager';
 import ProjectManager from './components/ProjectManager';
-import ProjectView from './components/ProjectView';
+import ProjectDashboard from './components/ProjectDashboard'; // Import new component
 import { Task, Category, Project } from './types';
 
 type TabType = 'dashboard' | 'all-tasks' | 'projects' | 'categories';
@@ -225,11 +226,53 @@ function App() {
   const renderMainContent = () => {
     switch (activeTab) {
       case 'dashboard':
+        return (
+          <>
+            <div className="header">
+              <h1 className="page-title">Dashboard</h1>
+              <div className="toolbar">
+                <button className="btn btn-primary" onClick={() => setShowWizard(true)}>
+                  What should I do now?
+                </button>
+                <button className="btn btn-outline" onClick={() => setShowCategoryManager(true)}>
+                  Manage Categories
+                </button>
+                <button className="btn btn-outline" onClick={() => setShowProjectManager(true)}>
+                  Manage Projects
+                </button>
+              </div>
+            </div>
+            
+            {/* Capture Bar */}
+            <div className="capture-bar">
+              <CaptureBar
+                addTask={addTask}
+                newParent={newParent}
+                setNewParent={setNewParent}
+                parentOptions={parentOptions}
+                categories={categories}
+                projects={projects}
+              />
+            </div>
+            
+            {/* Project Dashboard */}
+            <ProjectDashboard
+              projects={projects}
+              tasks={tasks}
+              categories={categories}
+              toggleTask={toggleTask}
+              deleteTask={deleteTask}
+              updateTask={updateTask} addTask={function (title: string, dueDate: string | null, parentId?: string, categoryIds?: string[], projectId?: string | null): void {
+                throw new Error('Function not implemented.');
+              } }            />
+          </>
+        );
+        
       case 'all-tasks':
         return (
           <>
             <div className="header">
-              <h1 className="page-title">{activeTab === 'dashboard' ? 'My Tasks' : 'All Tasks'}</h1>
+              <h1 className="page-title">All Tasks</h1>
               <div className="toolbar">
                 <button className="btn btn-primary" onClick={() => setShowWizard(true)}>
                   What should I do now?
@@ -242,51 +285,27 @@ function App() {
             
             {/* Capture Bar */}
             <div className="capture-bar">
-              <form className="capture-form" onSubmit={(e) => {
-                e.preventDefault();
-                const titleInput = e.currentTarget.querySelector('input[type="text"]') as HTMLInputElement;
-                const dateInput = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
-                const timeInput = e.currentTarget.querySelector('input[type="time"]') as HTMLInputElement;
-                
-                if (titleInput && titleInput.value.trim()) {
-                  const title = titleInput.value.trim();
-                  const dueDate = dateInput && dateInput.value 
-                    ? `${dateInput.value}T${timeInput?.value || '00:00:00'}` 
-                    : null;
-                  
-                  addTask(title, dueDate);
-                  titleInput.value = '';
-                  if (dateInput) dateInput.value = '';
-                  if (timeInput) timeInput.value = '';
-                }
-              }}>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="Quick capture..."
-                />
-                <input 
-                  type="date" 
-                  className="form-control"
-                />
-                <input 
-                  type="time" 
-                  className="form-control"
-                />
-                <button type="submit" className="btn btn-primary">Add</button>
-              </form>
+              <CaptureBar
+                addTask={addTask}
+                newParent={newParent}
+                setNewParent={setNewParent}
+                parentOptions={parentOptions}
+                categories={categories}
+                projects={projects}
+              />
             </div>
             
             {/* Task Sections */}
             {overdueTasks.length > 0 && (
               <>
                 <h2 className="section-title">Overdue</h2>
-                <div className="task-list">
+                <div className="task-grid">
                   <TaskList 
                     tasks={overdueTasks} 
                     toggleTask={toggleTask} 
                     deleteTask={deleteTask} 
-                    updateTask={updateTask} 
+                    updateTask={updateTask}
+                    addTask={addTask} 
                     categories={categories}
                     projects={projects}
                   />
@@ -297,12 +316,13 @@ function App() {
             {todayTasks.length > 0 && (
               <>
                 <h2 className="section-title">Today</h2>
-                <div className="task-list">
+                <div className="task-grid">
                   <TaskList 
                     tasks={todayTasks} 
                     toggleTask={toggleTask} 
                     deleteTask={deleteTask} 
-                    updateTask={updateTask} 
+                    updateTask={updateTask}
+                    addTask={addTask}
                     categories={categories}
                     projects={projects}
                   />
@@ -313,12 +333,13 @@ function App() {
             {upcomingTasks.length > 0 && (
               <>
                 <h2 className="section-title">Upcoming</h2>
-                <div className="task-list">
+                <div className="task-grid">
                   <TaskList 
                     tasks={upcomingTasks} 
                     toggleTask={toggleTask} 
                     deleteTask={deleteTask} 
                     updateTask={updateTask} 
+                    addTask={addTask}
                     categories={categories}
                     projects={projects}
                   />
@@ -329,12 +350,13 @@ function App() {
             {noDateTasks.length > 0 && (
               <>
                 <h2 className="section-title">No Due Date</h2>
-                <div className="task-list">
+                <div className="task-grid">
                   <TaskList 
                     tasks={noDateTasks} 
                     toggleTask={toggleTask} 
                     deleteTask={deleteTask} 
                     updateTask={updateTask} 
+                    addTask={addTask}
                     categories={categories}
                     projects={projects}
                   />
@@ -345,12 +367,13 @@ function App() {
             {completedTasks.length > 0 && (
               <>
                 <h2 className="section-title">Completed</h2>
-                <div className="task-list">
+                <div className="task-grid">
                   <TaskList 
                     tasks={completedTasks} 
                     toggleTask={toggleTask} 
                     deleteTask={deleteTask} 
                     updateTask={updateTask} 
+                    addTask={addTask}
                     categories={categories}
                     projects={projects}
                   />
@@ -372,24 +395,16 @@ function App() {
               </div>
             </div>
             
-            {projects.length === 0 ? (
-              <div className="empty-state">
-                <h3>No Projects Yet</h3>
-                <p>Create your first project to organize related tasks together.</p>
-                <button className="btn btn-primary" onClick={() => setShowProjectManager(true)}>
-                  Create Project
-                </button>
-              </div>
-            ) : (
-              <ProjectView 
-                projects={projects}
-                tasks={tasks}
-                categories={categories}
-                toggleTask={toggleTask}
-                deleteTask={deleteTask}
-                updateTask={updateTask}
-              />
-            )}
+            {/* Project Dashboard */}
+            <ProjectDashboard
+              projects={projects}
+              tasks={tasks}
+              categories={categories}
+              toggleTask={toggleTask}
+              deleteTask={deleteTask}
+              updateTask={updateTask}
+              addTask={addTask}
+            />
           </>
         );
         

@@ -13,6 +13,13 @@ type TaskListProps = {
     categories?: string[],
     projectId?: string | null
   ) => void;
+  addTask: (
+    title: string,
+    dueDate: string | null,
+    parentId?: string,
+    categoryIds?: string[],
+    projectId?: string | null
+  ) => void;
   categories: Category[];
   projects: Project[];
 };
@@ -22,6 +29,7 @@ export default function TaskList({
   toggleTask,
   deleteTask,
   updateTask,
+  addTask,
   categories,
   projects,
 }: TaskListProps) {
@@ -30,9 +38,18 @@ export default function TaskList({
   const [editDueDate, setEditDueDate] = useState<string>('');
   const [editCategories, setEditCategories] = useState<string[]>([]);
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
+  
+  // New state for adding subtasks
+  const [addingSubtaskFor, setAddingSubtaskFor] = useState<string | null>(null);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
   // Only render top-level tasks (no parentId)
   const topTasks = tasks.filter(t => !t.parentId);
+  
+  // Get subtasks for a specific parent
+  const getSubtasks = (parentId: string) => {
+    return tasks.filter(t => t.parentId === parentId);
+  };
 
   return (
     <>
@@ -139,6 +156,15 @@ export default function TaskList({
                 
                 <div className="task-actions">
                   <button 
+                    className="btn btn-sm btn-outline"
+                    onClick={() => {
+                      setAddingSubtaskFor(task.id);
+                      setNewSubtaskTitle('');
+                    }}
+                  >
+                    Add Subtask
+                  </button>
+                  <button 
                     className={`btn btn-sm ${task.status === 'pending' ? 'btn-success' : 'btn-outline'}`}
                     onClick={() => toggleTask(task.id)}
                   >
@@ -181,35 +207,80 @@ export default function TaskList({
                   </span>
                 )}
               </div>
+              
+              {/* Add subtask form */}
+              {addingSubtaskFor === task.id && (
+                <div className="subtask-form">
+                  <div className="flex gap-sm">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="New subtask..."
+                      value={newSubtaskTitle}
+                      onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                    />
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        if (newSubtaskTitle.trim()) {
+                          addTask(
+                            newSubtaskTitle.trim(),
+                            null, // No due date for simplicity
+                            task.id, // Set the parentId
+                            task.categories, // Inherit categories
+                            task.projectId // Inherit project
+                          );
+                          setAddingSubtaskFor(null);
+                          setNewSubtaskTitle('');
+                        }
+                      }}
+                    >
+                      Add
+                    </button>
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => setAddingSubtaskFor(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
           {/* Subtasks */}
-          {tasks.filter(sub => sub.parentId === task.id).length > 0 && (
+          {getSubtasks(task.id).length > 0 && (
             <div className="subtasks">
-              {tasks
-                .filter(sub => sub.parentId === task.id)
-                .map(sub => (
-                  <div key={sub.id} className="subtask-item">
-                    <span
-                      className={`subtask-title ${sub.status === 'completed' ? 'completed' : ''}`}
-                      onClick={() => toggleTask(sub.id)}
-                    >
-                      {sub.title}
-                      {sub.dueDate && (
-                        <span className="task-date ml-xs">
-                          {new Date(sub.dueDate).toLocaleDateString()}
-                        </span>
-                      )}
-                    </span>
+              {getSubtasks(task.id).map(subtask => (
+                <div key={subtask.id} className="subtask-item">
+                  <span
+                    className={`subtask-title ${subtask.status === 'completed' ? 'completed' : ''}`}
+                    onClick={() => toggleTask(subtask.id)}
+                  >
+                    {subtask.title}
+                    {subtask.dueDate && (
+                      <span className="task-date ml-xs">
+                        {new Date(subtask.dueDate).toLocaleDateString()}
+                      </span>
+                    )}
+                  </span>
+                  <div className="subtask-actions">
                     <button 
                       className="btn btn-sm btn-outline"
-                      onClick={() => deleteTask(sub.id)}
+                      onClick={() => toggleTask(subtask.id)}
+                    >
+                      {subtask.status === 'pending' ? 'Complete' : 'Undo'}
+                    </button>
+                    <button 
+                      className="btn btn-sm btn-outline btn-danger"
+                      onClick={() => deleteTask(subtask.id)}
                     >
                       Delete
                     </button>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           )}
         </div>
