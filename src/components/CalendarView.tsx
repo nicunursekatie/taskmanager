@@ -1,4 +1,6 @@
 // src/components/CalendarView.tsx
+import { fetchEvents, isAuthenticated, GoogleEvent } from '../services/googleCalendarService';
+import GoogleCalendarButton from './GoogleCalendarButton';
 import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -42,7 +44,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  
+  const [googleEvents, setGoogleEvents] = useState<GoogleEvent[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState<boolean>(false);
+
   // State for editing tasks
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -60,6 +64,43 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       setWeekDates(dates);
     }
   }, [selectedDate, viewMode]);
+
+  // Fetch Google Calendar events when date changes or when authenticated
+useEffect(() => {
+  const loadGoogleEvents = async () => {
+    if (!isAuthenticated()) return;
+    
+    setIsLoadingEvents(true);
+    try {
+      // Create date range based on current view
+      const start = new Date(selectedDate);
+      const end = new Date(selectedDate);
+      
+      if (viewMode === 'month') {
+        start.setDate(1);
+        end.setMonth(end.getMonth() + 1);
+        end.setDate(0);
+      } else if (viewMode === 'week') {
+        const day = start.getDay();
+        start.setDate(start.getDate() - day + (day === 0 ? -6 : 1));
+        end.setDate(start.getDate() + 6);
+      } else {
+        // day view
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      }
+      
+      const events = await fetchEvents(start, end);
+      setGoogleEvents(events);
+    } catch (error) {
+      console.error('Error loading Google events:', error);
+    } finally {
+      setIsLoadingEvents(false);
+    }
+  };
+  
+  loadGoogleEvents();
+}, [selectedDate, viewMode]);
 
   // Get the dates for a week starting from a given date
   const getWeekDates = (date: Date) => {
@@ -120,10 +161,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   // Custom tile content renderer for the calendar
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view !== 'month') return null;
-
+  
     const tasksForDay = getTasksForDate(date);
-    if (tasksForDay.length === 0) return null;
-
+    
+    // Get Google events for this day
+    const eventsForDay = googleEvents.filter(event => {
+      const eventDate = new Date(event.start);
+      return eventDate.toDateString() === date.toDateString();
+    });
+    
+    const totalItems = tasksForDay.length + eventsForDay.length;
+    
+    if (totalItems === 0) return null;
+  
     // Group tasks by category
     const categoryGroups: Record<string, number> = {};
     
@@ -137,10 +187,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         categoryGroups['none'] = (categoryGroups['none'] || 0) + 1;
       }
     });
-
+  
     return (
       <div className="calendar-tile-content">
-        <div className="task-count">{tasksForDay.length}</div>
+        <div className="task-count">{totalItems}</div>
         <div className="category-indicators">
           {Object.entries(categoryGroups).map(([catId]) => {
             if (catId === 'none') {
@@ -164,11 +214,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({
               />
             );
           })}
+          
+          {/* Google Events Indicator */}
+          {eventsForDay.length > 0 && (
+            <span 
+              key="google-event"
+              className="category-dot"
+              style={{ backgroundColor: '#4285F4' }} // Google blue
+            />
+          )}
         </div>
       </div>
     );
   };
-
+  
   // Format date for display
   const formatDate = (date: Date) => {
     return date.toLocaleDateString(undefined, {
@@ -257,30 +316,39 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   return (
-    <div className="calendar-view">
-      <div className="calendar-header">
-        <h2>Calendar View</h2>
-        <div className="view-controls">
-          <button 
-            className={`btn ${viewMode === 'month' ? 'btn-primary' : 'btn-outline'}`}
-            onClick={() => setViewMode('month')}
-          >
-            Month
-          </button>
-          <button 
-            className={`btn ${viewMode === 'week' ? 'btn-primary' : 'btn-outline'}`}
-            onClick={() => setViewMode('week')}
-          >
-            Week
-          </button>
-          <button 
-            className={`btn ${viewMode === 'day' ? 'btn-primary' : 'btn-outline'}`}
-            onClick={() => setViewMode('day')}
-          >
-            Day
-          </button>
-        </div>
+  <div className="calendar-view">
+    <div className="calendar-header">
+      <h2>Calendar View</h2>
+      <div className="view-controls">
+        <button 
+          className={`btn ${viewMode === 'month' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setViewMode('month')}
+        >
+          Month
+        </button>
+        <button 
+          className={`btn ${viewMode === 'week' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setViewMode('week')}
+        >
+          Week
+        </button>
+        <button 
+          className={`btn ${viewMode === 'day' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setViewMode('day')}
+        >
+          Day
+        </button>
+        
+        {/* Add Google Calendar button */}
+        <GoogleCalendarButton 
+          onAuthStatusChange={(isAuthenticated) => {
+            if (!isAuthenticated) {
+              setGoogleEvents([]);
+            }
+          }}
+        />
       </div>
+    </div>
 
       {viewMode === 'month' && (
         <div className="calendar-container">
@@ -372,257 +440,362 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         </div>
       )}
 
-      {viewMode === 'day' && (
-        <div className="day-view">
-          <h3 className="selected-date">{formatDate(selectedDate)}</h3>
-          
-          <div className="day-header">
-            <h4>Tasks</h4>
-            <button 
-              className="btn btn-primary"
-              onClick={() => setShowTaskForm(true)}
-            >
-              + Add Task
-            </button>
-          </div>
-
-          {showTaskForm && (
-            <div className="quick-task-form">
-              <div className="form-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Task title"
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                />
+{viewMode === 'day' && (
+  <div className="day-view">
+    <h3 className="selected-date">{formatDate(selectedDate)}</h3>
+    
+    {/* Google Calendar Events Section */}
+    {isAuthenticated() && (
+      <div className="google-events-section">
+        <div className="google-events-header">
+          <h4>Google Calendar Events</h4>
+          {isLoadingEvents && <span>Loading...</span>}
+        </div>
+        
+        <div className="events-list">
+          {googleEvents.filter(event => {
+            const eventDate = new Date(event.start);
+            return eventDate.toDateString() === selectedDate.toDateString();
+          }).map(event => (
+            <div key={event.id} className="google-event">
+              <div className="google-event-title">{event.summary}</div>
+              <div className="google-event-time">
+                {new Date(event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+                {new Date(event.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
-              
-              <div className="form-group">
-                <label>Categories</label>
-                <div className="category-selector">
-                  {categories.map(category => (
-                    <div
-                      key={category.id}
-                      className={`category-option ${selectedCategories.includes(category.id) ? 'selected' : ''}`}
-                      style={{
-                        backgroundColor: selectedCategories.includes(category.id) ? category.color : 'transparent',
-                        border: `1px solid ${category.color}`,
-                        color: selectedCategories.includes(category.id) ? 'white' : category.color
-                      }}
-                      onClick={() => {
-                        if (selectedCategories.includes(category.id)) {
-                          setSelectedCategories(selectedCategories.filter(id => id !== category.id));
-                        } else {
-                          setSelectedCategories([...selectedCategories, category.id]);
-                        }
-                      }}
-                    >
-                      {category.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="form-group">
-                <label>Project</label>
-                <select
-                  className="form-control"
-                  value={selectedProject || ''}
-                  onChange={(e) => setSelectedProject(e.target.value || null)}
-                >
-                  <option value="">No Project</option>
-                  {projects.map(project => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="form-actions">
-                <button 
-                  className="btn btn-primary"
-                  onClick={handleAddTask}
-                >
-                  Add Task
-                </button>
-                <button 
-                  className="btn btn-outline"
-                  onClick={() => setShowTaskForm(false)}
-                >
-                  Cancel
-                </button>
-              </div>
+              {event.location && (
+                <div className="google-event-location">📍 {event.location}</div>
+              )}
             </div>
+          ))}
+          
+          {googleEvents.filter(event => {
+            const eventDate = new Date(event.start);
+            return eventDate.toDateString() === selectedDate.toDateString();
+          }).length === 0 && !isLoadingEvents && (
+            <div className="no-events-message">No events scheduled for this day</div>
           )}
+        </div>
+      </div>
+    )}
+    
+    {/* Tasks Section */}
+    <div className="day-header">
+      <h4>Tasks</h4>
+      <button 
+        className="btn btn-primary"
+        onClick={() => setShowTaskForm(true)}
+      >
+        + Add Task
+      </button>
+    </div>
+  </div>
 
-          <div className="tasks-for-day">
-            {editingId ? (
-              // Edit task form
-              <div className="task-edit-form">
-                <input
-                  type="text"
-                  className="form-control"
-                  value={editTitle}
-                  onChange={e => setEditTitle(e.target.value)}
-                />
-                
-                <div className="input-group">
-                  <label className="form-label">Due Date</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    value={editDueDate}
-                    onChange={e => setEditDueDate(e.target.value)}
-                  />
-                </div>
-                
-                <div className="input-group">
-                  <label className="form-label">Categories</label>
-                  <div className="category-selector">
-                    {categories.map(category => (
-                      <div
-                        key={category.id}
-                        className={`category-option ${editCategories.includes(category.id) ? 'selected' : ''}`}
-                        style={{
-                          backgroundColor: editCategories.includes(category.id) ? category.color : 'transparent',
-                          border: `1px solid ${category.color}`,
-                          color: editCategories.includes(category.id) ? 'white' : category.color
-                        }}
-                        onClick={() => {
-                          if (editCategories.includes(category.id)) {
-                            setEditCategories(editCategories.filter(id => id !== category.id));
-                          } else {
-                            setEditCategories([...editCategories, category.id]);
-                          }
-                        }}
-                      >
-                        {category.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="input-group">
-                  <label className="form-label">Project</label>
-                  <select 
-                    className="form-control"
-                    value={editProjectId || ''}
-                    onChange={(e) => setEditProjectId(e.target.value || null)}
-                  >
-                    <option value="">No Project</option>
-                    {projects.map(project => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="flex justify-between gap-sm">
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      if (editingId) {
-                        updateTask(editingId, editTitle, editDueDate || null, editCategories, editProjectId);
-                        setEditingId(null);
-                      }
-                    }}
-                  >
-                    Save
-                  </button>
-                  <button 
-                    className="btn btn-outline"
-                    onClick={() => setEditingId(null)}
-                  >
-                    Cancel
-                  </button>
-                </div>
+    {showTaskForm && (
+      <div className="quick-task-form">
+        {/* Add your form content here */}
+      </div>
+    )}
+      <div className="quick-task-form">
+        <div className="form-group">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Task title"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Categories</label>
+          <div className="category-selector">
+            {categories.map(category => (
+              <div
+                key={category.id}
+                className={`category-option ${selectedCategories.includes(category.id) ? 'selected' : ''}`}
+                style={{
+                  backgroundColor: selectedCategories.includes(category.id) ? category.color : 'transparent',
+                  border: `1px solid ${category.color}`,
+                  color: selectedCategories.includes(category.id) ? 'white' : category.color
+                }}
+                onClick={() => {
+                  if (selectedCategories.includes(category.id)) {
+                    setSelectedCategories(selectedCategories.filter(id => id !== category.id));
+                  } else {
+                    setSelectedCategories([...selectedCategories, category.id]);
+                  }
+                }}
+              >
+                {category.name}
               </div>
-            ) : (
-              // Task list
-              tasksForSelectedDate.length > 0 ? (
-                tasksForSelectedDate.map(task => (
-                  <div 
-                    key={task.id} 
-                    className={`calendar-task-item ${task.status === 'completed' ? 'completed' : ''}`}
-                  >
-                    <div className="task-header">
-                      <div className="task-check">
-                        <label className="task-checkbox-container">
-                          <input 
-                            type="checkbox" 
-                            checked={task.status === 'completed'}
-                            onChange={() => toggleTask(task.id)}
-                            className="task-checkbox"
-                          />
-                          <span className="task-checkmark"></span>
-                        </label>
-                        <span
-                          className={`task-title ${task.status === 'completed' ? 'completed' : ''}`}
-                        >
-                          {task.title}
-                        </span>
-                      </div>
-                      
-                      <div className="task-actions">
-                        <button 
-                          className="btn btn-sm btn-outline"
-                          onClick={() => {
-                            setEditingId(task.id);
-                            setEditTitle(task.title);
-                            setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
-                            setEditCategories(task.categories || []);
-                            setEditProjectId(task.projectId ?? null);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-danger"
-                          onClick={() => deleteTask(task.id)}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="task-meta">
-                      {task.categories && task.categories.length > 0 && 
-                        task.categories.map(categoryId => {
-                          const category = categories.find(c => c.id === categoryId);
-                          return category ? (
-                            <span
-                              key={categoryId}
-                              className="task-category"
-                              style={{ backgroundColor: category.color }}
-                            >
-                              {category.name}
-                            </span>
-                          ) : null;
-                        })
-                      }
-                      
-                      {task.projectId && (
-                        <span className="task-project">
-                          {projects.find(p => p.id === task.projectId)?.name || 'Unknown Project'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="no-tasks-message">
-                  No tasks scheduled for this day
-                </div>
-              )
-            )}
+            ))}
           </div>
         </div>
+        
+        <div className="form-group">
+          <label>Project</label>
+          <select
+            className="form-control"
+            value={selectedProject || ''}
+            onChange={(e) => setSelectedProject(e.target.value || null)}
+          >
+            <option value="">No Project</option>
+            {projects.map(project => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="form-actions">
+          <button 
+            className="btn btn-primary"
+            onClick={handleAddTask}
+          >
+            Add Task
+          </button>
+          <button 
+            className="btn btn-outline"
+            onClick={() => setShowTaskForm(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    )}
+      <div className="quick-task-form">
+        <div className="form-group">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Task title"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Categories</label>
+          <div className="category-selector">
+            {categories.map(category => (
+              <div
+                key={category.id}
+                className={`category-option ${selectedCategories.includes(category.id) ? 'selected' : ''}`}
+                style={{
+                  backgroundColor: selectedCategories.includes(category.id) ? category.color : 'transparent',
+                  border: `1px solid ${category.color}`,
+                  color: selectedCategories.includes(category.id) ? 'white' : category.color
+                }}
+                onClick={() => {
+                  if (selectedCategories.includes(category.id)) {
+                    setSelectedCategories(selectedCategories.filter(id => id !== category.id));
+                  } else {
+                    setSelectedCategories([...selectedCategories, category.id]);
+                  }
+                }}
+              >
+                {category.name}
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <div className="form-group">
+          <label>Project</label>
+          <select
+            className="form-control"
+            value={selectedProject || ''}
+            onChange={(e) => setSelectedProject(e.target.value || null)}
+          >
+            <option value="">No Project</option>
+            {projects.map(project => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="form-actions">
+          <button 
+            className="btn btn-primary"
+            onClick={handleAddTask}
+          >
+            Add Task
+          </button>
+          <button 
+            className="btn btn-outline"
+            onClick={() => setShowTaskForm(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    )}
+
+    <div className="tasks-for-day">
+      {editingId ? (
+        // Edit task form
+        <div className="task-edit-form">
+          <input
+            type="text"
+            className="form-control"
+            value={editTitle}
+            onChange={e => setEditTitle(e.target.value)}
+          />
+          
+          <div className="input-group">
+            <label className="form-label">Due Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={editDueDate}
+              onChange={e => setEditDueDate(e.target.value)}
+            />
+          </div>
+          
+          <div className="input-group">
+            <label className="form-label">Categories</label>
+            <div className="category-selector">
+              {categories.map(category => (
+                <div
+                  key={category.id}
+                  className={`category-option ${editCategories.includes(category.id) ? 'selected' : ''}`}
+                  style={{
+                    backgroundColor: editCategories.includes(category.id) ? category.color : 'transparent',
+                    border: `1px solid ${category.color}`,
+                    color: editCategories.includes(category.id) ? 'white' : category.color
+                  }}
+                  onClick={() => {
+                    if (editCategories.includes(category.id)) {
+                      setEditCategories(editCategories.filter(id => id !== category.id));
+                    } else {
+                      setEditCategories([...editCategories, category.id]);
+                    }
+                  }}
+                >
+                  {category.name}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="input-group">
+            <label className="form-label">Project</label>
+            <select 
+              className="form-control"
+              value={editProjectId || ''}
+              onChange={(e) => setEditProjectId(e.target.value || null)}
+            >
+              <option value="">No Project</option>
+              {projects.map(project => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex justify-between gap-sm">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                if (editingId) {
+                  updateTask(editingId, editTitle, editDueDate || null, editCategories, editProjectId);
+                  setEditingId(null);
+                }
+              }}
+            >
+              Save
+            </button>
+            <button 
+              className="btn btn-outline"
+              onClick={() => setEditingId(null)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        // Task list
+        tasksForSelectedDate.length > 0 ? (
+          tasksForSelectedDate.map(task => (
+            <div 
+              key={task.id} 
+              className={`calendar-task-item ${task.status === 'completed' ? 'completed' : ''}`}
+            >
+              <div className="task-header">
+                <div className="task-check">
+                  <label className="task-checkbox-container">
+                    <input 
+                      type="checkbox" 
+                      checked={task.status === 'completed'}
+                      onChange={() => toggleTask(task.id)}
+                      className="task-checkbox"
+                    />
+                    <span className="task-checkmark"></span>
+                  </label>
+                  <span
+                    className={`task-title ${task.status === 'completed' ? 'completed' : ''}`}
+                  >
+                    {task.title}
+                  </span>
+                </div>
+                
+                <div className="task-actions">
+                  <button 
+                    className="btn btn-sm btn-outline"
+                    onClick={() => {
+                      setEditingId(task.id);
+                      setEditTitle(task.title);
+                      setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
+                      setEditCategories(task.categories || []);
+                      setEditProjectId(task.projectId ?? null);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className="btn btn-sm btn-danger"
+                    onClick={() => deleteTask(task.id)}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+              
+              <div className="task-meta">
+                {task.categories && task.categories.length > 0 && 
+                  task.categories.map(categoryId => {
+                    const category = categories.find(c => c.id === categoryId);
+                    return category ? (
+                      <span
+                        key={categoryId}
+                        className="task-category"
+                        style={{ backgroundColor: category.color }}
+                      >
+                        {category.name}
+                      </span>
+                    ) : null;
+                  })
+                }
+                
+                {task.projectId && (
+                  <span className="task-project">
+                    {projects.find(p => p.id === task.projectId)?.name || 'Unknown Project'}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="no-tasks-message">
+            No tasks scheduled for this day
+          </div>
+        )
       )}
     </div>
-  );
-};
-
-export default CalendarView;
+  </div>
+)}
