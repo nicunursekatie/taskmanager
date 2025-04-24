@@ -29,14 +29,14 @@ type CalendarViewProps = {
   projects: Project[];
 };
 
-const CalendarView: React.FC<CalendarViewProps> = ({
+export const CalendarView: React.FC<CalendarViewProps> = ({
   tasks,
   toggleTask,
   deleteTask,
   updateTask,
   addTask,
   categories,
-  projects
+  projects,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
@@ -316,8 +316,8 @@ useEffect(() => {
   };
 
   return (
-  <div className="calendar-view">
-    <div className="calendar-header">
+      <div className="calendar-view">
+      <div className="calendar-header">
       <h2>Calendar View</h2>
       <div className="view-controls">
         <button 
@@ -349,6 +349,8 @@ useEffect(() => {
         />
       </div>
     </div>
+
+      </div>
 
       {viewMode === 'month' && (
         <div className="calendar-container">
@@ -440,8 +442,8 @@ useEffect(() => {
         </div>
       )}
 
-{viewMode === 'day' && (
-  <div className="day-view">
+      {viewMode === 'day' && (
+        <div className="day-view">
     <h3 className="selected-date">{formatDate(selectedDate)}</h3>
     
     {/* Google Calendar Events Section */}
@@ -489,82 +491,7 @@ useEffect(() => {
         + Add Task
       </button>
     </div>
-  </div>
-
     {showTaskForm && (
-      <div className="quick-task-form">
-        {/* Add your form content here */}
-      </div>
-    )}
-      <div className="quick-task-form">
-        <div className="form-group">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Task title"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Categories</label>
-          <div className="category-selector">
-            {categories.map(category => (
-              <div
-                key={category.id}
-                className={`category-option ${selectedCategories.includes(category.id) ? 'selected' : ''}`}
-                style={{
-                  backgroundColor: selectedCategories.includes(category.id) ? category.color : 'transparent',
-                  border: `1px solid ${category.color}`,
-                  color: selectedCategories.includes(category.id) ? 'white' : category.color
-                }}
-                onClick={() => {
-                  if (selectedCategories.includes(category.id)) {
-                    setSelectedCategories(selectedCategories.filter(id => id !== category.id));
-                  } else {
-                    setSelectedCategories([...selectedCategories, category.id]);
-                  }
-                }}
-              >
-                {category.name}
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="form-group">
-          <label>Project</label>
-          <select
-            className="form-control"
-            value={selectedProject || ''}
-            onChange={(e) => setSelectedProject(e.target.value || null)}
-          >
-            <option value="">No Project</option>
-            {projects.map(project => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="form-actions">
-          <button 
-            className="btn btn-primary"
-            onClick={handleAddTask}
-          >
-            Add Task
-          </button>
-          <button 
-            className="btn btn-outline"
-            onClick={() => setShowTaskForm(false)}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    )}
       <div className="quick-task-form">
         <div className="form-group">
           <input
@@ -794,8 +721,9 @@ useEffect(() => {
           <div className="no-tasks-message">
             No tasks scheduled for this day
           </div>
-        )
-      )}
+        );
+      })}
     </div>
-  </div>
-)}
+  )}
+  </>
+  );
