@@ -152,17 +152,21 @@
   }
   
   /* Main content */
-  .main-content {
-    flex: 1;
-    margin-left: var(--sidebar-width);
-    padding: var(--space-xl);
-    max-width: calc(100% - var(--sidebar-width));
-  }
-  
-  .content-wrapper {
-    max-width: var(--content-max-width);
-    margin: 0 auto;
-  }
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: var(--space-xl);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: none;
+  padding: 2rem;
+  margin: 0 auto;
+}
   
   /* Header */
   .header {
