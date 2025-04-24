@@ -1,16 +1,18 @@
-// Modified App.tsx to use ProjectDashboard
+// Modified App.tsx to include CalendarView
 import React, { useState, useEffect } from 'react';
 import './app-styles.css';
-import './styles/project-dashboard.css'; // Import new styles
+import './styles/project-dashboard.css';
 import CaptureBar from './components/CaptureBar';
 import TaskList from './components/TaskList';
 import ContextWizard from './components/ContextWizard';
 import CategoryManager from './components/CategoryManager';
 import ProjectManager from './components/ProjectManager';
-import ProjectDashboard from './components/ProjectDashboard'; // Import new component
+import ProjectDashboard from './components/ProjectDashboard';
+import CalendarView from './components/CalendarView'; // Import the new component
 import { Task, Category, Project } from './types';
 
-type TabType = 'dashboard' | 'all-tasks' | 'projects' | 'categories';
+// Add 'calendar' to TabType
+type TabType = 'dashboard' | 'all-tasks' | 'projects' | 'categories' | 'calendar';
 
 function App() {
   // Navigation state
@@ -262,9 +264,9 @@ function App() {
               categories={categories}
               toggleTask={toggleTask}
               deleteTask={deleteTask}
-              updateTask={updateTask} addTask={function (title: string, dueDate: string | null, parentId?: string, categoryIds?: string[], projectId?: string | null): void {
-                throw new Error('Function not implemented.');
-              } }            />
+              updateTask={updateTask}
+              addTask={addTask}
+            />
           </>
         );
         
@@ -449,6 +451,34 @@ function App() {
           </>
         );
         
+      case 'calendar':
+        return (
+          <>
+            <div className="header">
+              <h1 className="page-title">Calendar</h1>
+              <div className="toolbar">
+                <button className="btn btn-primary" onClick={() => setShowWizard(true)}>
+                  What should I do now?
+                </button>
+                <button className="btn btn-outline" onClick={() => setShowCategoryManager(true)}>
+                  Manage Categories
+                </button>
+              </div>
+            </div>
+            
+            {/* Calendar View */}
+            <CalendarView 
+              tasks={tasks}
+              toggleTask={toggleTask}
+              deleteTask={deleteTask}
+              updateTask={updateTask}
+              addTask={addTask}
+              categories={categories}
+              projects={projects}
+            />
+          </>
+        );
+        
       default:
         return null;
     }
@@ -484,6 +514,18 @@ function App() {
               }}
             >
               All Tasks
+            </a>
+          </li>
+          <li>
+            <a 
+              href="#" 
+              className={`nav-link ${activeTab === 'calendar' ? 'active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab('calendar');
+              }}
+            >
+              Calendar
             </a>
           </li>
           <li>

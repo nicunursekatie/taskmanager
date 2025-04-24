@@ -1,0 +1,487 @@
+/* src/components/CalendarView.css */
+.calendar-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.view-controls {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.calendar-container {
+  margin-bottom: var(--space-lg);
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Calendar navigation custom styling */
+.calendar-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.calendar-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: 0 1rem;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius);
+}
+
+.nav-button:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+/* Custom Calendar Styles */
+.custom-calendar-wrapper .react-calendar {
+  width: 100%;
+  max-width: none;
+  border: none;
+  background-color: transparent;
+  color: var(--text-color);
+  font-family: inherit;
+}
+
+.custom-calendar-wrapper .react-calendar__tile {
+  position: relative;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border-color);
+  overflow: visible;
+}
+
+.custom-calendar-wrapper .react-calendar__month-view__days__day {
+  padding: 10px;
+}
+
+.custom-calendar-wrapper .react-calendar__month-view__weekdays {
+  background-color: var(--section-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.custom-calendar-wrapper .react-calendar__month-view__weekdays__weekday {
+  padding: 10px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.custom-calendar-wrapper .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+.custom-calendar-wrapper .react-calendar__month-view__days__day--neighboringMonth {
+  color: var(--text-light);
+  opacity: 0.5;
+}
+
+.custom-calendar-wrapper .react-calendar__tile--now {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.custom-calendar-wrapper .react-calendar__tile--active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.custom-calendar-wrapper .react-calendar__month-view__days__day:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.custom-calendar-wrapper .react-calendar__month-view__days__day--weekend {
+  color: #ff6b6b;
+}
+
+/* Week View Styles */
+.week-view-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.week-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--section-bg);
+}
+
+.week-day-header {
+  padding: 10px;
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+}
+
+.week-day-header:last-child {
+  border-right: none;
+}
+
+.week-day-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.week-day-number {
+  font-size: 1.2rem;
+  padding-top: 5px;
+}
+
+.week-day-number.current-day {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  height: 250px;
+}
+
+.week-day-cell {
+  border-right: 1px solid var(--border-color);
+  padding: 8px;
+  background-color: var(--card-bg);
+  overflow-y: auto;
+  cursor: pointer;
+}
+
+.week-day-cell:last-child {
+  border-right: none;
+}
+
+.week-day-cell.current-day {
+  background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+.week-day-cell.weekend {
+  background-color: rgba(var(--text-color-rgb), 0.03);
+}
+
+.week-day-cell:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.week-day-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.week-task-item {
+  background-color: var(--section-bg);
+  border-radius: 4px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--primary-color);
+  font-size: 0.85rem;
+  transition: transform 0.1s ease;
+  cursor: pointer;
+}
+
+.week-task-item:hover {
+  transform: translateY(-2px);
+}
+
+.week-task-item.completed {
+  border-left-color: var(--success-color);
+  opacity: 0.7;
+}
+
+.week-task-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.week-task-categories {
+  display: flex;
+  gap: 3px;
+}
+
+.week-category-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Calendar Content Styling */
+.calendar-tile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+}
+
+.task-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-indicators {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Day view styles */
+.day-view {
+  padding: var(--space-md);
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.selected-date {
+  margin-top: 0;
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.day-header h4 {
+  margin: 0;
+}
+
+/* Task form styles */
+.quick-task-form {
+  background-color: var(--section-bg);
+  padding: var(--space-md);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--space-md);
+}
+
+.form-group {
+  margin-bottom: var(--space-sm);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-weight: 500;
+}
+
+.category-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.category-option {
+  padding: 2px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+/* Task item styles */
+.tasks-for-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.calendar-task-item {
+  background-color: var(--section-bg);
+  border-radius: var(--border-radius);
+  padding: var(--space-sm);
+  border-left: 3px solid var(--primary-color);
+}
+
+.calendar-task-item.completed {
+  border-left-color: var(--success-color);
+  opacity: 0.8;
+}
+
+.calendar-task-item .task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.task-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.task-title {
+  font-weight: 500;
+}
+
+.task-title.completed {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+.calendar-task-item .task-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.calendar-task-item .task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.task-category {
+  font-size: var(--font-size-sm);
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+}
+
+.task-project {
+  font-size: var(--font-size-sm);
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+}
+
+.no-tasks-message {
+  text-align: center;
+  padding: var(--space-lg);
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* Custom Checkbox Styles */
+.task-checkbox-container {
+  display: inline-block;
+  position: relative;
+  padding-left: 25px;
+  margin-right: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Hide the default checkbox */
+.task-checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.task-checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+/* On mouse-over, add a grey background color */
+.task-checkbox-container:hover .task-checkmark {
+  border-color: var(--primary-color);
+}
+
+/* When the checkbox is checked, add a blue background */
+.task-checkbox-container input:checked ~ .task-checkmark {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.task-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.task-checkbox-container input:checked ~ .task-checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.task-checkbox-container .task-checkmark:after {
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}

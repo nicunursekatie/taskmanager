@@ -48,20 +48,27 @@ export type CaptureBarProps = {
      projects: Project[];
    };
   
-export type TaskListProps = {
-  tasks: Task[];
-  toggleTask: (id: string) => void;
-  deleteTask: (id: string) => void;
-  updateTask: (
-    id: string, 
-    title: string, 
-    dueDate: string | null,
-    categories?: string[],
-    projectId?: string | null
-  ) => void;
-  categories: Category[];
-  projects: Project[];
-};
+   export type TaskListProps = {
+    tasks: Task[];
+    toggleTask: (id: string) => void;
+    deleteTask: (id: string) => void;
+    updateTask: (
+      id: string, 
+      title: string, 
+      dueDate: string | null,
+      categories?: string[],
+      projectId?: string | null
+    ) => void;
+    addTask: (
+      title: string,
+      dueDate: string | null,
+      parentId?: string,
+      categoryIds?: string[],
+      projectId?: string | null
+    ) => void;
+    categories: Category[];
+    projects: Project[];
+  };
 
 export type ContextWizardProps = {
   tasks: Task[];

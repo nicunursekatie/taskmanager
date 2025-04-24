@@ -1,5 +1,5 @@
 // src/components/CaptureBar.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Category, Project } from '../types';
 
 type CaptureBarProps = {
@@ -50,8 +50,8 @@ export default function CaptureBar({
       trimmed,
       dateTime,
       newParent,
-      selectedCategories.length > 0 ? selectedCategories : undefined,  // <-- array of IDs
-      /* (optional) projectId here if you added it */
+      selectedCategories.length > 0 ? selectedCategories : undefined,
+      projectId
     );
     
 
@@ -89,6 +89,20 @@ export default function CaptureBar({
           onChange={e => setDueTime(e.target.value)}
         />
         
+        {/* Project dropdown - always visible */}
+        <select
+          className="form-control"
+          value={projectId || ''}
+          onChange={e => setProjectId(e.target.value || null)}
+        >
+          <option value="">No Project</option>
+          {projects.map(project => (
+            <option key={project.id} value={project.id}>
+              {project.name}
+            </option>
+          ))}
+        </select>
+        
         <button type="submit" className="btn btn-primary">Add</button>
       </form>
       
@@ -103,19 +117,6 @@ export default function CaptureBar({
             {parentOptions.map(o => (
               <option key={o.id} value={o.id}>
                 {o.title}
-              </option>
-            ))}
-          </select>
-          
-          <select
-            className="form-control"
-            value={projectId || ''}
-            onChange={e => setProjectId(e.target.value || null)}
-          >
-            <option value="">No Project</option>
-            {projects.map(project => (
-              <option key={project.id} value={project.id}>
-                {project.name}
               </option>
             ))}
           </select>

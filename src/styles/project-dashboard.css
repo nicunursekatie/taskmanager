@@ -194,3 +194,210 @@
     border-left: 2px dashed var(--border-color);
     padding-left: var(--space-sm);
   }
+  /* Add these styles to your project-dashboard.css file */
+
+/* Checkbox styling */
+.task-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 3px;
+    margin-right: var(--space-sm);
+    position: relative;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: all var(--transition-speed);
+  }
+  
+  .task-checkbox:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  .task-checkbox:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  /* Task main content with checkbox */
+  .task-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+  
+  .task-item .task-title {
+    margin: 0;
+    transition: color var(--transition-speed);
+  }
+  
+  /* Icon button styling */
+  .btn-icon {
+    padding: 0.4rem;
+    height: 32px;
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+  }
+  
+  .btn-icon:hover {
+    color: var(--danger-color);
+  }
+  
+  /* Subtask styling with checkbox */
+  .subtask-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+  
+  .subtask-item {
+    padding: var(--space-xs) var(--space-sm);
+  }
+  
+  /* Better task header layout */
+  .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: var(--space-xs);
+  }
+  
+  /* Styling for completed tasks */
+  .task-title.completed, .subtask-title.completed {
+    text-decoration: line-through;
+    color: var(--text-light);
+  }
+  
+  /* Make subtasks more distinct */
+  .subtasks {
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px dashed var(--border-color);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .task-main {
+      flex: 1;
+    }
+    
+    .task-header {
+      flex-wrap: wrap;
+    }
+    
+    .task-actions {
+      margin-top: var(--space-xs);
+    }
+  }
+  /* Add these styles to your project-dashboard.css file */
+
+/* Move project form styling */
+.move-project-form {
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    padding: var(--space-sm);
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    border-radius: var(--border-radius);
+  }
+  
+  .subtask-move-form {
+    margin-top: var(--space-xs);
+    margin-left: var(--space-md);
+  }
+  
+  /* Improved capture bar */
+  .capture-form {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto auto;
+    gap: var(--space-sm);
+  }
+  
+  /* Improved project panel */
+  .project-panel {
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .project-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* Project badges */
+  .task-project {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: var(--font-size-xs);
+    background-color: var(--primary-light);
+    color: white;
+    display: inline-block;
+    margin-right: var(--space-xs);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+  }
+  
+  .task-project:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-1px);
+  }
+  
+  /* Move icon style */
+  .move-icon {
+    color: var(--text-light);
+    cursor: pointer;
+    transition: color var(--transition-speed);
+  }
+  
+  .move-icon:hover {
+    color: var(--primary-color);
+  }
+  
+  /* Better task checkbox */
+  .task-checkbox {
+    cursor: pointer;
+    min-width: 18px;
+  }
+  
+  /* Responsive styles for project features */
+  @media (max-width: 768px) {
+    .capture-form {
+      grid-template-columns: 1fr;
+    }
+    
+    .move-project-form .flex {
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    
+    .move-project-form select {
+      width: 100%;
+    }
+    
+    .move-project-form .btn {
+      width: 100%;
+    }
+  }
+  
+  /* Add some animation for better UX */
+  .project-content {
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }

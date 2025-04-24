@@ -632,3 +632,285 @@
   
   .w-full { width: 100%; }
   .hidden { display: none; }
+
+  /* Add these styles to your app-styles.css file */
+
+/* Task item controls */
+.task-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.task-title-wrapper .btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.task-title-wrapper .btn-sm {
+  padding: 0.25rem 0.5rem;
+  min-width: 40px;
+}
+
+.subtask-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.subtask-title-wrapper .btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+/* Make task listings consistent */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-md);
+}
+
+/* Task meta info */
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.task-date {
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+  background-color: rgba(var(--text-color-rgb), 0.05);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.task-category {
+  font-size: var(--font-size-sm);
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+}
+
+.task-project {
+  font-size: var(--font-size-sm);
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+}
+
+/* Task editing */
+.task-edit-form {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.category-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.category-option {
+  padding: 4px 10px;
+  font-size: var(--font-size-sm);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.category-option.selected {
+  color: white;
+}
+
+/* Subtasks */
+.subtasks {
+  margin-top: var(--space-sm);
+  margin-left: var(--space-lg);
+  padding-left: var(--space-md);
+  border-left: 1px dashed var(--border-color);
+}
+
+.subtask-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xs) 0;
+}
+
+.subtask-title {
+  cursor: pointer;
+}
+
+.subtask-title.completed {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+.subtask-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+/* Project Dashboard */
+.project-dashboard .task-item {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+  border-left: 3px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-dashboard .task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.project-dashboard .task-item.completed {
+  border-left-color: var(--success-color);
+  opacity: 0.8;
+}
+
+.project-dashboard .task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-sm);
+}
+
+.project-dashboard .task-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.project-dashboard .task-title {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  margin: 0;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.project-dashboard .task-title.completed {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+/* Add these styles to your app-styles.css file for custom checkboxes */
+
+/* Custom Checkbox Styles */
+.task-checkbox-container {
+  display: inline-block;
+  position: relative;
+  padding-left: 25px;
+  margin-right: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Hide the default checkbox */
+.task-checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.task-checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+/* On mouse-over, add a grey background color */
+.task-checkbox-container:hover .task-checkmark {
+  border-color: var(--primary-color);
+}
+
+/* When the checkbox is checked, add a blue background */
+.task-checkbox-container input:checked ~ .task-checkmark {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.task-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.task-checkbox-container input:checked ~ .task-checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.task-checkbox-container .task-checkmark:after {
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Small version for subtasks */
+.task-checkbox-container.small {
+  padding-left: 20px;
+}
+
+.task-checkbox-container.small .task-checkmark {
+  height: 14px;
+  width: 14px;
+}
+
+.task-checkbox-container.small .task-checkmark:after {
+  left: 4px;
+  top: 1px;
+  width: 3px;
+  height: 7px;
+}
+
+/* Adjust task title wrapper for checkbox alignment */
+.task-title-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.subtask-title-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* Calendar view specific styles */
+.calendar-task-item .task-check {
+  display: flex;
+  align-items: center;
+}
+
+/* Task checked and completed states */
+.task-title.completed {
+  text-decoration: line-through;
+  color: var(--text-light);
+}

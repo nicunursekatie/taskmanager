@@ -141,18 +141,29 @@ export default function TaskList({
             // View mode
             <>
               <div className="task-header">
-                <h3 
-                  className={`task-title ${task.status === 'completed' ? 'completed' : ''}`}
-                  onClick={() => {
-                    setEditingId(task.id);
-                    setEditTitle(task.title);
-                    setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
-                    setEditCategories(task.categories || []);
-                    setEditProjectId(task.projectId ?? null);
-                  }}
-                >
-                  {task.title}
-                </h3>
+                <div className="task-title-wrapper">
+                  <label className="task-checkbox-container">
+                    <input 
+                      type="checkbox" 
+                      checked={task.status === 'completed'}
+                      onChange={() => toggleTask(task.id)}
+                      className="task-checkbox"
+                    />
+                    <span className="task-checkmark"></span>
+                  </label>
+                  <h3 
+                    className={`task-title ${task.status === 'completed' ? 'completed' : ''}`}
+                    onClick={() => {
+                      setEditingId(task.id);
+                      setEditTitle(task.title);
+                      setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
+                      setEditCategories(task.categories || []);
+                      setEditProjectId(task.projectId ?? null);
+                    }}
+                  >
+                    {task.title}
+                  </h3>
+                </div>
                 
                 <div className="task-actions">
                   <button 
@@ -165,16 +176,22 @@ export default function TaskList({
                     Add Subtask
                   </button>
                   <button 
-                    className={`btn btn-sm ${task.status === 'pending' ? 'btn-success' : 'btn-outline'}`}
-                    onClick={() => toggleTask(task.id)}
+                    className="btn btn-sm btn-outline"
+                    onClick={() => {
+                      setEditingId(task.id);
+                      setEditTitle(task.title);
+                      setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
+                      setEditCategories(task.categories || []);
+                      setEditProjectId(task.projectId ?? null);
+                    }}
                   >
-                    {task.status === 'pending' ? 'Complete' : 'Undo'}
+                    Edit
                   </button>
                   <button 
                     className="btn btn-sm btn-danger"
                     onClick={() => deleteTask(task.id)}
                   >
-                    Delete
+                    🗑️
                   </button>
                 </div>
               </div>
@@ -254,29 +271,47 @@ export default function TaskList({
             <div className="subtasks">
               {getSubtasks(task.id).map(subtask => (
                 <div key={subtask.id} className="subtask-item">
-                  <span
-                    className={`subtask-title ${subtask.status === 'completed' ? 'completed' : ''}`}
-                    onClick={() => toggleTask(subtask.id)}
-                  >
-                    {subtask.title}
-                    {subtask.dueDate && (
-                      <span className="task-date ml-xs">
-                        {new Date(subtask.dueDate).toLocaleDateString()}
-                      </span>
-                    )}
-                  </span>
+                  <div className="subtask-title-wrapper">
+                    <label className="task-checkbox-container small">
+                      <input 
+                        type="checkbox" 
+                        checked={subtask.status === 'completed'}
+                        onChange={() => toggleTask(subtask.id)}
+                        className="task-checkbox"
+                      />
+                      <span className="task-checkmark"></span>
+                    </label>
+                    <span
+                      className={`subtask-title ${subtask.status === 'completed' ? 'completed' : ''}`}
+                    >
+                      {subtask.title}
+                      {subtask.dueDate && (
+                        <span className="task-date ml-xs">
+                          {new Date(subtask.dueDate).toLocaleDateString()}
+                        </span>
+                      )}
+                    </span>
+                  </div>
                   <div className="subtask-actions">
                     <button 
                       className="btn btn-sm btn-outline"
-                      onClick={() => toggleTask(subtask.id)}
+                      onClick={() => {
+                        setEditingId(subtask.id);
+                        setEditTitle(subtask.title);
+                        setEditDueDate(subtask.dueDate ? subtask.dueDate.split('T')[0] : '');
+                        setEditCategories(subtask.categories || []);
+                        setEditProjectId(subtask.projectId ?? null);
+                      }}
+                      style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                     >
-                      {subtask.status === 'pending' ? 'Complete' : 'Undo'}
+                      Edit
                     </button>
                     <button 
-                      className="btn btn-sm btn-outline btn-danger"
+                      className="btn btn-sm btn-danger"
                       onClick={() => deleteTask(subtask.id)}
+                      style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                     >
-                      Delete
+                      🗑️
                     </button>
                   </div>
                 </div>
