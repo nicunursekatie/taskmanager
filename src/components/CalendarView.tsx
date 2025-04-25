@@ -47,15 +47,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const [googleEvents, setGoogleEvents] = useState<GoogleEvent[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState<boolean>(false);
 
+  // State for editing tasks
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDueDate, setEditDueDate] = useState<string>('');
   const [editCategories, setEditCategories] = useState<string[]>([]);
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
 
+  // Calculate week dates based on the selected date
   const [weekDates, setWeekDates] = useState<Date[]>([]);
 
   useEffect(() => {
+    // Calculate the dates for the current week when selected date changes
     if (viewMode === 'week') {
       const dates = getWeekDates(selectedDate);
       setWeekDates(dates);
@@ -99,39 +102,47 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     loadGoogleEvents();
   }, [selectedDate, viewMode]);
 
+  // Get the dates for a week starting from a given date
   const getWeekDates = (date: Date) => {
     const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    
     const monday = new Date(date);
     monday.setDate(diff);
-
+    
     const weekDates = [];
     for (let i = 0; i < 7; i++) {
       const nextDate = new Date(monday);
       nextDate.setDate(monday.getDate() + i);
       weekDates.push(nextDate);
     }
-
+    
     return weekDates;
   };
 
+  // Get current month and year
   const currentMonth = selectedDate.toLocaleString('default', { month: 'long' });
   const currentYear = selectedDate.getFullYear();
 
+  // Filter tasks for the selected day
   const getTasksForDate = (date: Date) => {
     const dayStr = date.toISOString().split('T')[0];
     return tasks.filter(
-      (t) => t.dueDate && t.dueDate.split('T')[0] === dayStr && !t.parentId
+      t => t.dueDate && t.dueDate.split('T')[0] === dayStr && !t.parentId
     );
   };
 
+  // Get tasks for the currently selected date
   const tasksForSelectedDate = getTasksForDate(selectedDate);
 
+  // Handle adding a new task on the selected date
   const handleAddTask = () => {
     if (!newTaskTitle.trim()) return;
 
+    // Create ISO string for the selected date
     const dateStr = selectedDate.toISOString();
 
+    // Add the new task
     addTask(
       newTaskTitle.trim(),
       dateStr,
@@ -140,38 +151,43 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       selectedProject
     );
 
+    // Reset form
     setNewTaskTitle('');
     setSelectedCategories([]);
     setSelectedProject(null);
     setShowTaskForm(false);
   };
 
+  // Custom tile content renderer for the calendar
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view !== 'month') return null;
-
+  
     const tasksForDay = getTasksForDate(date);
-
-    const eventsForDay = googleEvents.filter((event) => {
+    
+    // Get Google events for this day
+    const eventsForDay = googleEvents.filter(event => {
       const eventDate = new Date(event.start);
       return eventDate.toDateString() === date.toDateString();
     });
-
+    
     const totalItems = tasksForDay.length + eventsForDay.length;
-
+    
     if (totalItems === 0) return null;
-
+  
+    // Group tasks by category
     const categoryGroups: Record<string, number> = {};
-
-    tasksForDay.forEach((task) => {
+    
+    tasksForDay.forEach(task => {
       if (task.categories && task.categories.length > 0) {
-        task.categories.forEach((catId) => {
+        task.categories.forEach(catId => {
           categoryGroups[catId] = (categoryGroups[catId] || 0) + 1;
         });
       } else {
+        // No category
         categoryGroups['none'] = (categoryGroups['none'] || 0) + 1;
       }
     });
-
+  
     return (
       <div className="calendar-tile-content">
         <div className="task-count">{totalItems}</div>
@@ -179,39 +195,39 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           {Object.entries(categoryGroups).map(([catId]) => {
             if (catId === 'none') {
               return (
-                <span
-                  key="none"
+                <span 
+                  key="none" 
                   className="category-dot"
                   style={{ backgroundColor: '#888888' }}
                 />
               );
             }
-
-            const category = categories.find((c) => c.id === catId);
+            
+            const category = categories.find(c => c.id === catId);
             if (!category) return null;
-
+            
             return (
-              <span
-                key={catId}
+              <span 
+                key={catId} 
                 className="category-dot"
                 style={{ backgroundColor: category.color }}
               />
             );
-            </div>
-          )}
-
+          })}
+          
+          {/* Google Events Indicator */}
           {eventsForDay.length > 0 && (
-            <span
+            <span 
               key="google-event"
               className="category-dot"
-              style={{ backgroundColor: '#4285F4' }}
+              style={{ backgroundColor: '#4285F4' }} // Google blue
             />
           )}
         </div>
       </div>
     );
   };
-
+  
   // Format date for display
   const formatDate = (date: Date) => {
     return date.toLocaleDateString(undefined, {
@@ -304,19 +320,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       <div className="calendar-header">
         <h2>Calendar View</h2>
         <div className="view-controls">
-          <button
+          <button 
             className={`btn ${viewMode === 'month' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setViewMode('month')}
           >
             Month
           </button>
-          <button
+          <button 
             className={`btn ${viewMode === 'week' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setViewMode('week')}
           >
             Week
           </button>
-          <button
+          <button 
             className={`btn ${viewMode === 'day' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setViewMode('day')}
           >
@@ -473,6 +489,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               + Add Task
             </button>
           </div>
+          
           {showTaskForm && (
             <div className="quick-task-form">
               <div className="form-group">
@@ -703,11 +720,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <div className="no-tasks-message">
                   No tasks scheduled for this day
                 </div>
-              );
-            })}
+              )
+            )}
           </div>
         </div>
       )}
     </div>
   );
 };
+
+export default CalendarView;
