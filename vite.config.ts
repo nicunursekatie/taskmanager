@@ -1,12 +1,15 @@
 import { defineConfig } from 'vite'
-// Add your framework plugin here if needed
+import react from '@vitejs/plugin-react' // Keep this if you're using React
 
 export default defineConfig({
+  plugins: [react()], // Keep this if you're using React
   base: '/taskmanager/',
   define: {
-    // This provides a shim for the process.env variables
     'process.env': {},
-    // This prevents "process is not defined" errors
-    git pull origin main  'process': { env: {} }
+  },
+  build: {
+    outDir: 'dist',
+    // You can uncomment this if you're getting chunk size warnings
+    // chunkSizeWarningLimit: 1500,
   }
 })
