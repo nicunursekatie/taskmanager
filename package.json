@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "build:live": "VITE_GOOGLE_CLIENT_ID=337205432675-oo17078ed2km8pjaoh4beulrpn39dfgq.apps.googleusercontent.com npm run build",
+    "deploy:live": "npm run build:live && npm run deploy"
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
