@@ -1,31 +1,29 @@
-import React from 'react';
-import { isAuthenticated, initiateGoogleAuth, logOut } from '../services/googleCalendarService';
+// src/components/GoogleCalendarButton.tsx
 
-interface GoogleCalendarButtonProps {
-  onAuthStatusChange?: (isAuthenticated: boolean) => void;
-}
+import { GoogleLogin } from '@react-oauth/google';
+import { fetchGoogleCalendarEvents } from '../services/googleCalendarService';
 
-const GoogleCalendarButton: React.FC<GoogleCalendarButtonProps> = ({ onAuthStatusChange }) => {
-  const [authenticated, setAuthenticated] = React.useState<boolean>(isAuthenticated());
-  
-  const handleAuthClick = () => {
-    if (authenticated) {
-      logOut();
-      setAuthenticated(false);
-      if (onAuthStatusChange) onAuthStatusChange(false);
+export default function GoogleCalendarButton() {
+  const handleSuccess = async (credentialResponse: any) => {
+    console.log('Login Success!', credentialResponse);
+
+    if (credentialResponse && credentialResponse.access_token) {
+      const events = await fetchGoogleCalendarEvents(credentialResponse.access_token);
+      console.log('Fetched Events:', events);
+      // You can now do something with events, like setState to show them
     } else {
-      initiateGoogleAuth();
+      console.error('No access token received!');
     }
   };
-  
-  return (
-    <button 
-      className={`btn ${authenticated ? 'btn-outline' : 'btn-primary'}`}
-      onClick={handleAuthClick}
-    >
-      {authenticated ? 'Disconnect Google Calendar' : 'Connect Google Calendar'}
-    </button>
-  );
-};
 
-export default GoogleCalendarButton;
+  return (
+    <div>
+      <GoogleLogin
+        onSuccess={handleSuccess}
+        onError={() => {
+          console.log('Login Failed');
+        }}
+      />
+    </div>
+  );
+}
