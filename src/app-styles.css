@@ -914,3 +914,136 @@
   text-decoration: line-through;
   color: var(--text-light);
 }
+/* Add these styles to your app-styles.css file for proper subtask styling */
+
+/* Subtasks Styling */
+.subtasks {
+  margin-top: var(--space-sm);
+  margin-left: var(--space-lg);
+  padding-left: var(--space-md);
+  border-left: 1px dashed var(--border-color);
+}
+
+.subtask-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xs) 0;
+  margin-bottom: var(--space-xs);
+}
+
+.subtask-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.subtask-title {
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.subtask-title.completed {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+.subtask-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+/* Small checkbox for subtasks */
+.task-checkbox-container.small {
+  padding-left: 20px;
+}
+
+.task-checkbox-container.small .task-checkmark {
+  height: 14px;
+  width: 14px;
+}
+
+.task-checkbox-container.small .task-checkmark:after {
+  left: 4px;
+  top: 1px;
+  width: 3px;
+  height: 7px;
+}
+
+/* Form for adding subtasks */
+.subtask-form {
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  padding: var(--space-sm);
+  background-color: var(--section-bg);
+  border-radius: var(--border-radius);
+}
+
+/* Project dashboard specific styles */
+.project-dashboard .task-item {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  border-left: 3px solid var(--primary-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-dashboard .task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.project-dashboard .task-item.completed {
+  border-left-color: var(--success-color);
+  opacity: 0.8;
+}
+
+.project-dashboard .task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Calendar view subtask integration */
+.calendar-task-item .subtasks {
+  margin-top: var(--space-sm);
+  padding-top: var(--space-xs);
+  margin-left: var(--space-md);
+  padding-left: var(--space-sm);
+  border-left: 1px dashed var(--border-color);
+}
+
+.week-view-container .subtasks {
+  margin-left: var(--space-sm);
+  padding-left: var(--space-xs);
+}
+
+/* Day view specific subtask styling */
+.day-view .subtasks {
+  margin-top: 8px;
+  margin-left: 24px;
+  padding-left: 10px;
+  border-left: 1px dashed var(--border-color);
+}
+
+.day-view .subtask-item {
+  padding: 6px 0;
+}
+
+.day-view .subtask-title {
+  font-size: 0.85rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .subtasks {
+    margin-left: var(--space-md);
+    padding-left: var(--space-sm);
+  }
+  
+  .subtask-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

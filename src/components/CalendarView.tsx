@@ -54,6 +54,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const [editCategories, setEditCategories] = useState<string[]>([]);
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
 
+  // State for adding subtasks
+  const [addingSubtaskFor, setAddingSubtaskFor] = useState<string | null>(null);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+
   // Calculate week dates based on the selected date
   const [weekDates, setWeekDates] = useState<Date[]>([]);
 
@@ -124,7 +128,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const currentMonth = selectedDate.toLocaleString('default', { month: 'long' });
   const currentYear = selectedDate.getFullYear();
 
-  // Filter tasks for the selected day
+  // Filter tasks for the selected day (only return top-level tasks)
   const getTasksForDate = (date: Date) => {
     const dayStr = date.toISOString().split('T')[0];
     return tasks.filter(
@@ -134,6 +138,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Get tasks for the currently selected date
   const tasksForSelectedDate = getTasksForDate(selectedDate);
+
+  // Get subtasks for a specific parent
+  const getSubtasks = (parentId: string) => {
+    return tasks.filter(t => t.parentId === parentId);
+  };
 
   // Handle adding a new task on the selected date
   const handleAddTask = () => {
@@ -156,6 +165,25 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     setSelectedCategories([]);
     setSelectedProject(null);
     setShowTaskForm(false);
+  };
+
+  // Handle adding a subtask
+  const handleAddSubtask = () => {
+    if (!addingSubtaskFor || !newSubtaskTitle.trim()) return;
+    
+    const parentTask = tasks.find(t => t.id === addingSubtaskFor);
+    if (!parentTask) return;
+    
+    addTask(
+      newSubtaskTitle.trim(),
+      null, // No due date for simplicity
+      addingSubtaskFor, // Set the parentId
+      parentTask.categories, // Inherit categories
+      parentTask.projectId // Inherit project
+    );
+    
+    setAddingSubtaskFor(null);
+    setNewSubtaskTitle('');
   };
 
   // Custom tile content renderer for the calendar
@@ -238,6 +266,30 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     });
   };
 
+  // Start editing a task
+  const startEditingTask = (task: Task) => {
+    setEditingId(task.id);
+    setEditTitle(task.title);
+    setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
+    setEditCategories(task.categories || []);
+    setEditProjectId(task.projectId ?? null);
+  };
+
+  // Save edited task
+  const saveEditedTask = () => {
+    if (!editingId) return;
+    
+    updateTask(
+      editingId,
+      editTitle,
+      editDueDate || null,
+      editCategories,
+      editProjectId
+    );
+    
+    setEditingId(null);
+  };
+
   // Custom navigation for the calendar
   const onPrevMonth = () => {
     const newDate = new Date(selectedDate);
@@ -309,8 +361,167 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 })}
               </div>
             )}
+            
+            {/* Show indicator if task has subtasks */}
+            {getSubtasks(task.id).length > 0 && (
+              <div className="subtask-indicator">
+                +{getSubtasks(task.id).length}
+              </div>
+            )}
           </div>
         ))}
+      </div>
+    );
+  };
+
+  // Render a task item with subtasks
+  const renderTaskWithSubtasks = (task: Task) => {
+    const subtasks = getSubtasks(task.id);
+    
+    return (
+      <div 
+        key={task.id} 
+        className={`calendar-task-item ${task.status === 'completed' ? 'completed' : ''}`}
+      >
+        <div className="task-header">
+          <div className="task-check">
+            <label className="task-checkbox-container">
+              <input 
+                type="checkbox" 
+                checked={task.status === 'completed'}
+                onChange={() => toggleTask(task.id)}
+                className="task-checkbox"
+              />
+              <span className="task-checkmark"></span>
+            </label>
+            <span
+              className={`task-title ${task.status === 'completed' ? 'completed' : ''}`}
+            >
+              {task.title}
+            </span>
+          </div>
+          
+          <div className="task-actions">
+            <button 
+              className="btn btn-sm btn-outline"
+              onClick={() => {
+                setAddingSubtaskFor(task.id);
+                setNewSubtaskTitle('');
+              }}
+            >
+              Add Subtask
+            </button>
+            <button 
+              className="btn btn-sm btn-outline"
+              onClick={() => startEditingTask(task)}
+            >
+              Edit
+            </button>
+            <button 
+              className="btn btn-sm btn-danger"
+              onClick={() => deleteTask(task.id)}
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+        
+        <div className="task-meta">
+          {task.categories && task.categories.length > 0 && 
+            task.categories.map(categoryId => {
+              const category = categories.find(c => c.id === categoryId);
+              return category ? (
+                <span
+                  key={categoryId}
+                  className="task-category"
+                  style={{ backgroundColor: category.color }}
+                >
+                  {category.name}
+                </span>
+              ) : null;
+            })
+          }
+          
+          {task.projectId && (
+            <span className="task-project">
+              {projects.find(p => p.id === task.projectId)?.name || 'Unknown Project'}
+            </span>
+          )}
+        </div>
+        
+        {/* Add subtask form */}
+        {addingSubtaskFor === task.id && (
+          <div className="subtask-form">
+            <div className="flex gap-sm">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="New subtask..."
+                value={newSubtaskTitle}
+                onChange={(e) => setNewSubtaskTitle(e.target.value)}
+              />
+              <button
+                className="btn btn-primary"
+                onClick={handleAddSubtask}
+              >
+                Add
+              </button>
+              <button
+                className="btn btn-outline"
+                onClick={() => setAddingSubtaskFor(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Subtasks */}
+        {subtasks.length > 0 && (
+          <div className="subtasks">
+            {subtasks.map(subtask => (
+              <div key={subtask.id} className="subtask-item">
+                <div className="subtask-title-wrapper">
+                  <label className="task-checkbox-container small">
+                    <input 
+                      type="checkbox" 
+                      checked={subtask.status === 'completed'}
+                      onChange={() => toggleTask(subtask.id)}
+                      className="task-checkbox"
+                    />
+                    <span className="task-checkmark"></span>
+                  </label>
+                  <span
+                    className={`subtask-title ${subtask.status === 'completed' ? 'completed' : ''}`}
+                  >
+                    {subtask.title}
+                    {subtask.dueDate && (
+                      <span className="task-date ml-xs">
+                        {new Date(subtask.dueDate).toLocaleDateString()}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="subtask-actions">
+                  <button 
+                    className="btn btn-sm btn-outline"
+                    onClick={() => startEditingTask(subtask)}
+                    style={{ padding: '2px 6px', fontSize: '0.75rem' }}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className="btn btn-sm btn-danger"
+                    onClick={() => deleteTask(subtask.id)}
+                    style={{ padding: '2px 6px', fontSize: '0.75rem' }}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -627,12 +838,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <div className="flex justify-between gap-sm">
                   <button
                     className="btn btn-primary"
-                    onClick={() => {
-                      if (editingId) {
-                        updateTask(editingId, editTitle, editDueDate || null, editCategories, editProjectId);
-                        setEditingId(null);
-                      }
-                    }}
+                    onClick={saveEditedTask}
                   >
                     Save
                   </button>
@@ -647,75 +853,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             ) : (
               // Task list
               tasksForSelectedDate.length > 0 ? (
-                tasksForSelectedDate.map(task => (
-                  <div 
-                    key={task.id} 
-                    className={`calendar-task-item ${task.status === 'completed' ? 'completed' : ''}`}
-                  >
-                    <div className="task-header">
-                      <div className="task-check">
-                        <label className="task-checkbox-container">
-                          <input 
-                            type="checkbox" 
-                            checked={task.status === 'completed'}
-                            onChange={() => toggleTask(task.id)}
-                            className="task-checkbox"
-                          />
-                          <span className="task-checkmark"></span>
-                        </label>
-                        <span
-                          className={`task-title ${task.status === 'completed' ? 'completed' : ''}`}
-                        >
-                          {task.title}
-                        </span>
-                      </div>
-                      
-                      <div className="task-actions">
-                        <button 
-                          className="btn btn-sm btn-outline"
-                          onClick={() => {
-                            setEditingId(task.id);
-                            setEditTitle(task.title);
-                            setEditDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
-                            setEditCategories(task.categories || []);
-                            setEditProjectId(task.projectId ?? null);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-danger"
-                          onClick={() => deleteTask(task.id)}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="task-meta">
-                      {task.categories && task.categories.length > 0 && 
-                        task.categories.map(categoryId => {
-                          const category = categories.find(c => c.id === categoryId);
-                          return category ? (
-                            <span
-                              key={categoryId}
-                              className="task-category"
-                              style={{ backgroundColor: category.color }}
-                            >
-                              {category.name}
-                            </span>
-                          ) : null;
-                        })
-                      }
-                      
-                      {task.projectId && (
-                        <span className="task-project">
-                          {projects.find(p => p.id === task.projectId)?.name || 'Unknown Project'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))
+                tasksForSelectedDate.map(renderTaskWithSubtasks)
               ) : (
                 <div className="no-tasks-message">
                   No tasks scheduled for this day

@@ -8,7 +8,7 @@ import ContextWizard from './components/ContextWizard';
 import CategoryManager from './components/CategoryManager';
 import ProjectManager from './components/ProjectManager';
 import ProjectDashboard from './components/ProjectDashboard';
-import CalendarView from './components/CalendarView'; // Import the new component
+import { CalendarView } from './components/CalendarView'; // Import the new component
 import { Task, Category, Project } from './types';
 
 // Add 'calendar' to TabType
