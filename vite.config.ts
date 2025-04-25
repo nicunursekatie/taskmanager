@@ -7,6 +7,6 @@ export default defineConfig({
     // This provides a shim for the process.env variables
     'process.env': {},
     // This prevents "process is not defined" errors
-    'process': { env: {} }
+    git pull origin main  'process': { env: {} }
   }
 })
