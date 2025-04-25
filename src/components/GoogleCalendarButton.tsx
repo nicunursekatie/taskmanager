@@ -1,29 +1,22 @@
-// src/components/GoogleCalendarButton.tsx
-
-import { GoogleLogin } from '@react-oauth/google';
-import { fetchGoogleCalendarEvents } from '../services/googleCalendarService';
-
 export default function GoogleCalendarButton() {
-  const handleSuccess = async (credentialResponse: any) => {
-    console.log('Login Success!', credentialResponse);
+  const handleClick = () => {
+    if (window.google) {
+      const tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: '337205432675-oo17078ed2km8pjaoh4beulrpn39dfgq.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/calendar.readonly',
+        callback: (tokenResponse) => {
+          console.log('✅ Access token:', tokenResponse.access_token);
+          // Call fetchGoogleCalendarEvents(tokenResponse.access_token)
+        },
+      });
 
-    if (credentialResponse && credentialResponse.access_token) {
-      const events = await fetchGoogleCalendarEvents(credentialResponse.access_token);
-      console.log('Fetched Events:', events);
-      // You can now do something with events, like setState to show them
-    } else {
-      console.error('No access token received!');
+      tokenClient.requestAccessToken();
     }
   };
 
   return (
-    <div>
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={() => {
-          console.log('Login Failed');
-        }}
-      />
-    </div>
+    <button onClick={handleClick} className="btn btn-primary">
+      Connect Google Calendar
+    </button>
   );
 }
