@@ -1,5 +1,6 @@
 // Modified App.tsx to include CalendarView
-import React, { useState, useEffect } from 'react';
+import ImportTasks from './components/ImportTasks';
+import { useState, useEffect } from 'react';
 import './app-styles.css';
 import './styles/project-dashboard.css';
 import CaptureBar from './components/CaptureBar';
@@ -244,6 +245,12 @@ function App() {
                 </button>
               </div>
             </div>
+              <ImportTasks 
+                setTasks={setTasks}
+                setCategories={setCategories}
+                setProjects={setProjects}
+              />
+
             
             {/* Capture Bar */}
             <div className="capture-bar">
@@ -467,15 +474,7 @@ function App() {
             </div>
             
             {/* Calendar View */}
-            <CalendarView 
-              tasks={tasks}
-              toggleTask={toggleTask}
-              deleteTask={deleteTask}
-              updateTask={updateTask}
-              addTask={addTask}
-              categories={categories}
-              projects={projects}
-            />
+            <CalendarView />
           </>
         );
         
