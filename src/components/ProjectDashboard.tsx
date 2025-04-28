@@ -402,9 +402,10 @@ export default function ProjectDashboard({
             >
               <h2 className="project-name">{project.name}</h2>
               <div className="project-stats">
-                <span className="task-count">
-                  {counts.pending} pending / {counts.total} total
-                </span>
+              <span className="task-count">
+                ({counts.total})
+              </span>
+
                 <span className="expand-icon">
                   {expandedProject === project.id ? '▼' : '▶'}
                 </span>
