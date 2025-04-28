@@ -18,7 +18,12 @@ type TabType = 'dashboard' | 'all-tasks' | 'projects' | 'categories' | 'calendar
 function App() {
   // Navigation state
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
-  
+  // Add mobile sidebar toggle
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarExpanded(!sidebarExpanded);
+  };
   // State management for tasks
   const [tasks, setTasks] = useState<Task[]>(() => {
     const savedTasks = localStorage.getItem('tasks');
@@ -486,11 +491,11 @@ function App() {
   return (
     <div className="app-container">
       {/* Sidebar */}
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h2 className="sidebar-title">Task Manager</h2>
-        </div>
-        <ul className="nav-links">
+      <div className={`sidebar ${sidebarExpanded ? 'expanded' : ''}`}>
+      <div className="sidebar-header" onClick={toggleSidebar}>
+      <h2 className="sidebar-title">Task Manager</h2>
+      </div>
+      <ul className="nav-links">
           <li>
             <a 
               href="#" 
