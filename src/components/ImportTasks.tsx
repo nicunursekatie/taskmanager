@@ -40,9 +40,15 @@ const ImportTasks: React.FC<ImportTasksProps> = ({ setTasks, setCategories, setP
   };
 
   return (
-    <div style={{ margin: '20px 0' }}>
-      <input type="file" accept=".json" onChange={handleImport} />
-    </div>
+    <label className="btn btn-outline">
+      📥 Import Tasks
+      <input 
+        type="file" 
+        accept=".json"
+        onChange={handleImport}
+        style={{ display: 'none' }}
+      />
+    </label>
   );
 };
 

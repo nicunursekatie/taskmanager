@@ -349,7 +349,11 @@ export default function ProjectDashboard({
         >
           <h2 className="project-name">Unassigned Tasks</h2>
           <div className="project-stats">
-            <span className="task-count">{unassignedTasks.filter(t => !t.parentId).length} tasks</span>
+          <span className="task-count">
+            ({unassignedTasks.length})
+          </span>
+
+
             <span className="expand-icon">
               {expandedProject === 'unassigned' ? '▼' : '▶'}
             </span>
