@@ -4,8 +4,39 @@ import { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { fetchGoogleCalendarEvents } from '../services/googleCalendarService';
 import './CalendarView.css';
+import { Task, Category, Project } from '../types';
 
-const CalendarView = () => {
+interface CalendarViewProps {
+  tasks: Task[];
+  toggleTask: (id: string) => void;
+  deleteTask: (id: string) => void;
+  updateTask: (
+    id: string,
+    title: string,
+    dueDate: string | null,
+    categoryIds?: string[],
+    projectId?: string | null
+  ) => void;
+  addTask: (
+    title: string,
+    dueDate: string | null,
+    parentId?: string,
+    categoryIds?: string[],
+    projectId?: string | null
+  ) => void;
+  categories: Category[];
+  projects: Project[];
+}
+
+const CalendarView = ({
+  tasks,
+  toggleTask,
+  deleteTask,
+  updateTask,
+  addTask,
+  categories,
+  projects
+}: CalendarViewProps) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [events, setEvents] = useState<any[]>([]);
 
