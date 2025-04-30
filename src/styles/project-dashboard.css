@@ -401,3 +401,130 @@
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  /* Better task checkbox */
+.task-checkbox-container {
+  display: inline-block;
+  position: relative;
+  min-width: 24px;
+  height: 24px;
+  cursor: pointer;
+  user-select: none;
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+.task-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.task-checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 22px;
+  width: 22px;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.task-checkbox-container:hover .task-checkmark {
+  border-color: var(--primary-color);
+}
+
+.task-checkbox-container input:checked ~ .task-checkmark {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.task-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.task-checkbox-container input:checked ~ .task-checkmark:after {
+  display: block;
+}
+
+.task-checkbox-container .task-checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Project Dashboard Improvements */
+.project-dashboard {
+  margin-top: var(--space-xl);
+}
+
+.project-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Small checkbox for subtasks */
+.task-checkbox-container.small {
+  min-width: 18px;
+  height: 18px;
+}
+
+.task-checkbox-container.small .task-checkmark {
+  height: 16px;
+  width: 16px;
+}
+
+.task-checkbox-container.small .task-checkmark:after {
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+}
+
+/* Custom task classes for healthcare context */
+.priority-high {
+  border-left-color: var(--danger-color);
+}
+
+.priority-medium {
+  border-left-color: var(--warning-color);
+}
+
+.priority-low {
+  border-left-color: var(--success-color);
+}
+
+.task-status-badge {
+  font-size: var(--font-size-xs);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: var(--space-xs);
+}
+
+.status-urgent {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.status-routine {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.status-follow-up {
+  background-color: var(--warning-color);
+  color: white;
+}

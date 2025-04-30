@@ -1,5 +1,4 @@
 // src/components/CalendarView.tsx
-
 import { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { fetchGoogleCalendarEvents } from '../services/googleCalendarService';
@@ -39,6 +38,7 @@ const CalendarView = ({
 }: CalendarViewProps) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleLoginSuccess = async (credentialResponse: any) => {
     console.log('Google login successful!', credentialResponse);
@@ -55,22 +55,34 @@ const CalendarView = ({
       if (!accessToken) return;
 
       try {
+        setLoading(true);
         const fetchedEvents = await fetchGoogleCalendarEvents(accessToken);
         setEvents(fetchedEvents);
         console.log('Fetched Events:', fetchedEvents);
       } catch (error) {
         console.error('Failed to fetch events:', error);
+      } finally {
+        setLoading(false);
       }
     }
 
     getEvents();
   }, [accessToken]);
 
+  // Format the event date
+  const formatEventTime = (dateTimeStr: string) => {
+    const date = new Date(dateTimeStr);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
     <div className="calendar-view">
-      {!accessToken && (
-        <div>
+      {!accessToken ? (
+        <div className="calendar-login-container">
           <h2>Connect to Google Calendar</h2>
+          <p>
+            Connect your Google Calendar to see your upcoming events alongside your tasks.
+          </p>
           <GoogleLogin
             onSuccess={handleLoginSuccess}
             onError={() => {
@@ -78,21 +90,29 @@ const CalendarView = ({
             }}
           />
         </div>
-      )}
-
-      {accessToken && (
-        <div>
+      ) : (
+        <div className="calendar-events">
           <h2>Calendar Events</h2>
-          {events.length > 0 ? (
-            <ul>
+          
+          {loading ? (
+            <div className="loading-spinner">Loading calendar events...</div>
+          ) : events.length > 0 ? (
+            <ul className="calendar-event-list">
               {events.map(event => (
-                <li key={event.id}>
-                  {event.summary} ({event.start?.dateTime || event.start?.date})
+                <li key={event.id} className="calendar-event-item">
+                  <div className="calendar-event-time">
+                    {event.start?.dateTime 
+                      ? formatEventTime(event.start.dateTime)
+                      : 'All day'}
+                  </div>
+                  <div className="calendar-event-summary">{event.summary}</div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No events found.</p>
+            <div className="calendar-empty-state">
+              <p>No upcoming events found in your calendar.</p>
+            </div>
           )}
         </div>
       )}
